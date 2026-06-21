@@ -77,6 +77,15 @@ if (!function_exists('redirect')) {
     }
 }
 
+if (!function_exists('doc_title')) {
+    function doc_title(string $templateName): string
+    {
+        $stripped = trim((string) preg_replace('/\s*Generator\s*$/i', '', $templateName));
+
+        return $stripped !== '' ? $stripped : $templateName;
+    }
+}
+
 if (!function_exists('slugify')) {
     function slugify(string $text): string
     {
