@@ -1,0 +1,17 @@
+# If your hosting panel cannot set the document root to /public,
+# point your domain at this folder instead and keep this file in place —
+# it blocks direct access to application source so only /public is served.
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{REQUEST_URI} !^/index\.php
+RewriteRule ^(.*)$ /public/$1 [L]
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "^/(app|database|routes|storage|vendor)/">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>

@@ -1,0 +1,83 @@
+:root {
+  --invox-primary: #4338ca;
+  --invox-primary-dark: #3730a3;
+  --invox-bg: #f8f9fc;
+}
+
+body {
+  background-color: var(--invox-bg);
+  color: #1f2937;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--invox-primary) !important;
+}
+
+.btn-primary {
+  background-color: var(--invox-primary);
+  border-color: var(--invox-primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--invox-primary-dark);
+  border-color: var(--invox-primary-dark);
+}
+
+.btn-outline-primary {
+  color: var(--invox-primary);
+  border-color: var(--invox-primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--invox-primary);
+  border-color: var(--invox-primary);
+}
+
+.text-primary {
+  color: var(--invox-primary) !important;
+}
+
+.bg-primary-subtle {
+  background-color: #eef2ff !important;
+}
+
+.hero {
+  padding: 5rem 0 4rem;
+}
+
+.hero h1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.generator-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.generator-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.75rem 1.5rem rgba(67, 56, 202, 0.12) !important;
+}
+
+.plan-card.featured {
+  border: 2px solid var(--invox-primary) !important;
+}
+
+footer {
+  background-color: #111827;
+  color: #d1d5db;
+}
+
+footer a {
+  color: #d1d5db;
+}
+
+footer a:hover {
+  color: #fff;
+}
+
+.card {
+  background-color: #fff;
+}

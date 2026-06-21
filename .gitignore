@@ -1,0 +1,25 @@
+# Environment
+.env
+
+# Storage (runtime files, keep directory structure)
+storage/cache/*
+storage/logs/*
+storage/sessions/*
+!storage/cache/.gitkeep
+!storage/logs/.gitkeep
+!storage/sessions/.gitkeep
+
+# User uploads (keep directory structure)
+public/uploads/blog/*
+public/uploads/logos/*
+public/uploads/signatures/*
+!public/uploads/blog/.gitkeep
+!public/uploads/logos/.gitkeep
+!public/uploads/signatures/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
