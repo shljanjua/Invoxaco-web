@@ -89,6 +89,24 @@ $changeUp = $monthChange >= 0;
   </div>
 </div>
 
+<div class="card border-0 shadow-sm rounded-4 animate-in mb-4" style="animation-delay:0.28s;">
+  <div class="card-body">
+    <h5 class="fw-bold mb-3"><i class="bi bi-person-plus me-2"></i>Quick Add Client</h5>
+    <form method="POST" action="<?= url('clients') ?>" class="row g-2 align-items-start">
+      <?= csrf_field() ?>
+      <div class="col-md-4">
+        <input type="text" name="name" class="form-control" placeholder="Client name" required>
+      </div>
+      <div class="col-md-6">
+        <input type="text" name="notes" class="form-control" placeholder="Notes (optional)">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-lg me-1"></i>Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="card border-0 shadow-sm rounded-4 animate-in" style="animation-delay:0.3s;">
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-3">
