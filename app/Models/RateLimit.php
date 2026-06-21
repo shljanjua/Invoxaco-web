@@ -14,7 +14,7 @@ class RateLimit extends Model
         $stmt->execute(['key' => $key]);
     }
 
-    public static function count(string $key, int $decayMinutes): int
+    public static function countRecent(string $key, int $decayMinutes): int
     {
         $stmt = self::db()->prepare(
             'SELECT COUNT(*) AS c FROM rate_limits WHERE key_name = :key AND created_at >= (NOW() - INTERVAL :minutes MINUTE)'
