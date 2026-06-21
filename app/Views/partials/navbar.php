@@ -13,7 +13,10 @@
         <li class="nav-item"><a class="nav-link" href="<?= url('blog') ?>">Blog</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('contact') ?>">Contact</a></li>
       </ul>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 align-items-center">
+        <button type="button" id="themeToggle" class="btn btn-light border" title="Toggle dark / light mode">
+          <i class="bi bi-moon-stars"></i>
+        </button>
         <?php if ($user): ?>
           <a href="<?= url($user['role'] === 'admin' ? 'admin/dashboard' : 'dashboard') ?>" class="btn btn-outline-primary">Dashboard</a>
           <div class="dropdown">
@@ -41,3 +44,20 @@
     </div>
   </div>
 </nav>
+<script>
+(function () {
+  var btn = document.getElementById('themeToggle');
+  var icon = btn.querySelector('i');
+  function sync() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    icon.className = dark ? 'bi bi-sun' : 'bi bi-moon-stars';
+  }
+  sync();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('invox-theme', next);
+    sync();
+  });
+})();
+</script>

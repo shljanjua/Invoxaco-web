@@ -81,3 +81,63 @@ footer a:hover {
 .card {
   background-color: #fff;
 }
+
+@keyframes invox-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: invox-fade-up 0.4s ease both;
+}
+
+.kpi-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.75rem 1.5rem rgba(67, 56, 202, 0.1) !important;
+}
+
+[data-theme="dark"] {
+  --invox-bg: #0f172a;
+}
+
+[data-theme="dark"] body {
+  background-color: var(--invox-bg);
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .modal-content {
+  background-color: #1e293b !important;
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .navbar-light .nav-link,
+[data-theme="dark"] .text-secondary,
+[data-theme="dark"] .form-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .table {
+  color: #e5e7eb;
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: #0f172a;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .border-bottom,
+[data-theme="dark"] .border {
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: #1e293b !important;
+}
