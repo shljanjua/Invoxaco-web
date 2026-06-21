@@ -37,8 +37,13 @@
     <div class="card border-0 shadow-sm rounded-4 h-100">
       <div class="card-body">
         <div class="text-secondary small">Plan</div>
-        <div class="fs-5 fw-bold"><a href="<?= url('pricing') ?>" class="text-decoration-none">Upgrade Plan</a></div>
-        <div class="text-secondary small">Unlock premium templates &amp; more</div>
+        <?php if ($user['plan'] === 'free'): ?>
+          <div class="fs-5 fw-bold"><a href="<?= url('pricing') ?>" class="text-decoration-none">Upgrade Plan</a></div>
+          <div class="text-secondary small">Unlock premium templates &amp; more</div>
+        <?php else: ?>
+          <div class="fs-5 fw-bold"><a href="<?= url('billing/portal') ?>" class="text-decoration-none">Manage Billing</a></div>
+          <div class="text-secondary small"><?= $user['plan_expires_at'] ? 'Renews ' . e(date('M j, Y', strtotime($user['plan_expires_at']))) : 'Active subscription' ?></div>
+        <?php endif; ?>
       </div>
     </div>
   </div>

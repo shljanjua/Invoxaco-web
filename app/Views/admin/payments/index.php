@@ -6,7 +6,7 @@
 <div class="card border-0 shadow-sm rounded-4">
   <div class="card-body">
     <?php if (empty($payments)): ?>
-      <p class="text-secondary mb-0">No payments yet. Payment gateway integration is not yet wired up — this table will populate once a gateway is connected.</p>
+      <p class="text-secondary mb-0">No payments yet. This table populates automatically once a customer completes checkout via a connected gateway. Configure gateways in <a href="<?= url('admin/payment-settings') ?>">Payment Settings</a>.</p>
     <?php else: ?>
     <div class="table-responsive">
       <table class="table align-middle">

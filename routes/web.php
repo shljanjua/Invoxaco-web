@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\BillingController;
 use App\Controllers\BlogController;
 use App\Controllers\ClientController;
 use App\Controllers\ContactController;
@@ -46,6 +47,15 @@ $router->post('/verify-email/resend', [AuthController::class, 'resendVerificatio
 
 // Dashboard
 $router->get('/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
+
+// Billing
+$router->group([AuthMiddleware::class], function ($router) {
+    $router->post('/billing/checkout/{plan}', [BillingController::class, 'checkout']);
+    $router->get('/billing/portal', [BillingController::class, 'portal']);
+    $router->get('/billing/success', [BillingController::class, 'success']);
+    $router->get('/billing/cancel', [BillingController::class, 'cancel']);
+});
+$router->post('/billing/webhook/stripe', [BillingController::class, 'webhook']);
 
 // Generators catalog
 $router->get('/generators', [GeneratorController::class, 'catalog']);

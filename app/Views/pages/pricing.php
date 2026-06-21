@@ -33,9 +33,29 @@
             <li class="mb-2"><i class="bi <?= $plan['priority_support'] ? 'bi-check-circle-fill text-success' : 'bi-x-circle text-secondary' ?> me-2"></i>Priority support</li>
             <li class="mb-2"><i class="bi <?= $plan['bulk_generation'] ? 'bi-check-circle-fill text-success' : 'bi-x-circle text-secondary' ?> me-2"></i>Bulk generation</li>
           </ul>
-          <a href="<?= url($key === 'free' ? 'register' : 'register') ?>" class="btn <?= $key === 'pro' ? 'btn-primary' : 'btn-outline-primary' ?> w-100 mt-3">
-            <?= $key === 'free' ? 'Start Free' : 'Choose ' . e($plan['name']) ?>
-          </a>
+          <?php $authUser = auth_user(); ?>
+          <?php if (!$authUser): ?>
+            <a href="<?= url('register') ?>" class="btn <?= $key === 'pro' ? 'btn-primary' : 'btn-outline-primary' ?> w-100 mt-3">
+              <?= $key === 'free' ? 'Start Free' : 'Choose ' . e($plan['name']) ?>
+            </a>
+          <?php elseif ($key === 'free'): ?>
+            <a href="<?= url('dashboard') ?>" class="btn btn-outline-primary w-100 mt-3"><?= $authUser['plan'] === 'free' ? 'Current Plan' : 'Go to Dashboard' ?></a>
+          <?php elseif ($authUser['plan'] === $key): ?>
+            <a href="<?= url('billing/portal') ?>" class="btn btn-outline-primary w-100 mt-3">Manage Billing</a>
+          <?php else: ?>
+            <div class="d-flex gap-2 mt-3">
+              <form method="POST" action="<?= url('billing/checkout/' . $key) ?>" class="flex-fill">
+                <?= csrf_field() ?>
+                <input type="hidden" name="billing_cycle" value="monthly">
+                <button type="submit" class="btn <?= $key === 'pro' ? 'btn-primary' : 'btn-outline-primary' ?> w-100">Monthly</button>
+              </form>
+              <form method="POST" action="<?= url('billing/checkout/' . $key) ?>" class="flex-fill">
+                <?= csrf_field() ?>
+                <input type="hidden" name="billing_cycle" value="yearly">
+                <button type="submit" class="btn <?= $key === 'pro' ? 'btn-primary' : 'btn-outline-primary' ?> w-100">Yearly</button>
+              </form>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
     </div>

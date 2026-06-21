@@ -25,6 +25,35 @@ class User extends Model
         return (int) $stmt->fetch()['c'];
     }
 
+    public static function setStripeCustomerId(int $userId, string $customerId): void
+    {
+        self::update($userId, ['stripe_customer_id' => $customerId]);
+    }
+
+    public static function applyPlan(int $userId, string $plan, ?string $billingCycle, ?string $expiresAt): void
+    {
+        self::update($userId, [
+            'plan' => $plan,
+            'plan_billing_cycle' => $billingCycle,
+            'plan_expires_at' => $expiresAt,
+        ]);
+    }
+
+    public static function downgradeIfExpired(array $user): array
+    {
+        if ($user['plan'] === 'free' || empty($user['plan_expires_at'])) {
+            return $user;
+        }
+
+        if (strtotime($user['plan_expires_at']) >= time()) {
+            return $user;
+        }
+
+        self::applyPlan((int) $user['id'], 'free', null, null);
+
+        return self::find((int) $user['id']) ?? $user;
+    }
+
     public static function paginateAll(int $page, int $perPage = 20, string $search = ''): array
     {
         $offset = ($page - 1) * $perPage;
