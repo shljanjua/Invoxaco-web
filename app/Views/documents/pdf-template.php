@@ -29,7 +29,7 @@ foreach ($fields as $f) {
     }
 }
 
-$skipInHeader = array_merge($documentNumberFields, $structuredFieldNames, ['from_name', 'to_name', 'ship_to'], $primaryDateField ? [$primaryDateField] : []);
+$skipInHeader = array_merge($documentNumberFields, $structuredFieldNames, ['from_name', 'to_name', 'ship_to', 'notes'], $primaryDateField ? [$primaryDateField] : []);
 
 $accent = preg_match('/^#[0-9a-fA-F]{6}$/', (string) ($document['accent_color'] ?? '')) ? $document['accent_color'] : '#2563eb';
 $style = in_array($document['template_style'] ?? '', ['modern', 'classic', 'minimal', 'bold'], true) ? $document['template_style'] : 'modern';
@@ -41,6 +41,10 @@ $signatureFile = $user['signature_path'] ?? null;
 $logoExists = $logoFile && file_exists(__DIR__ . '/../../../public/uploads/logos/' . $logoFile);
 
 $fontFamily = $style === 'classic' ? "'Times New Roman', Georgia, serif" : 'Arial, Helvetica, sans-serif';
+
+$displayTitle = doc_title($template['name']);
+
+$senderName = trim((string) ($user['company_name'] ?? ''));
 ?>
 <?php if ($forBrowser): ?><!DOCTYPE html><html><head><meta charset="UTF-8"><title><?= e($document['title']) ?></title>
 <style>
@@ -66,10 +70,10 @@ $fontFamily = $style === 'classic' ? "'Times New Roman', Georgia, serif" : 'Aria
 <?php if ($logoExists): ?>
 <img src="<?= url('uploads/logos/' . $logoFile) ?>" style="max-height:50px; margin-bottom:8px; background:#fff; padding:4px; border-radius:4px;">
 <?php endif; ?>
-<div style="font-size:18px; font-weight:bold; color:#fff;"><?= e($user['company_name'] ?? $user['name']) ?></div>
+<?php if ($senderName !== ''): ?><div style="font-size:18px; font-weight:bold; color:#fff;"><?= e($senderName) ?></div><?php endif; ?>
 </td>
 <td style="vertical-align:top; text-align:right; padding:24px 30px;">
-<div style="font-size:24px; font-weight:bold; text-transform:uppercase; color:#fff;"><?= e($template['name']) ?></div>
+<div style="font-size:24px; font-weight:bold; text-transform:uppercase; color:#fff;"><?= e($displayTitle) ?></div>
 <?php if ($documentNumber): ?><div style="font-size:13px; color:rgba(255,255,255,0.85);">#<?= e($documentNumber) ?></div><?php endif; ?>
 <?php if ($primaryDate): ?><div style="font-size:13px; color:rgba(255,255,255,0.85);"><?= e(date('F j, Y', strtotime($primaryDate))) ?></div><?php endif; ?>
 </td>
@@ -85,10 +89,10 @@ $fontFamily = $style === 'classic' ? "'Times New Roman', Georgia, serif" : 'Aria
 <?php if ($logoExists): ?>
 <img src="<?= url('uploads/logos/' . $logoFile) ?>" style="max-height:50px; margin-bottom:8px;">
 <?php endif; ?>
-<div style="font-size:16px; font-weight:bold; color:#1f2937;"><?= e($user['company_name'] ?? $user['name']) ?></div>
+<?php if ($senderName !== ''): ?><div style="font-size:16px; font-weight:bold; color:#1f2937;"><?= e($senderName) ?></div><?php endif; ?>
 </td>
 <td style="vertical-align:top; text-align:right;">
-<div style="font-size:18px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:#1f2937;"><?= e($template['name']) ?></div>
+<div style="font-size:18px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:#1f2937;"><?= e($displayTitle) ?></div>
 <?php if ($documentNumber): ?><div style="font-size:12px; color:#9ca3af;">#<?= e($documentNumber) ?></div><?php endif; ?>
 <?php if ($primaryDate): ?><div style="font-size:12px; color:#9ca3af;"><?= e(date('F j, Y', strtotime($primaryDate))) ?></div><?php endif; ?>
 </td>
@@ -102,8 +106,8 @@ $fontFamily = $style === 'classic' ? "'Times New Roman', Georgia, serif" : 'Aria
 <?php if ($logoExists): ?>
 <img src="<?= url('uploads/logos/' . $logoFile) ?>" style="max-height:55px; margin-bottom:8px;"><br>
 <?php endif; ?>
-<div style="font-size:20px; font-weight:bold; letter-spacing:0.5px;"><?= e($user['company_name'] ?? $user['name']) ?></div>
-<div style="font-size:16px; text-transform:uppercase; letter-spacing:2px; color:<?= e($accent) ?>; margin-top:6px;"><?= e($template['name']) ?></div>
+<?php if ($senderName !== ''): ?><div style="font-size:20px; font-weight:bold; letter-spacing:0.5px;"><?= e($senderName) ?></div><?php endif; ?>
+<div style="font-size:16px; text-transform:uppercase; letter-spacing:2px; color:<?= e($accent) ?>; margin-top:6px;"><?= e($displayTitle) ?></div>
 <?php if ($documentNumber || $primaryDate): ?>
 <div style="font-size:12px; color:#6b7280; margin-top:4px;">
 <?= $documentNumber ? '#' . e($documentNumber) : '' ?><?= ($documentNumber && $primaryDate) ? ' &middot; ' : '' ?><?= $primaryDate ? e(date('F j, Y', strtotime($primaryDate))) : '' ?>
@@ -119,10 +123,10 @@ $fontFamily = $style === 'classic' ? "'Times New Roman', Georgia, serif" : 'Aria
 <?php if ($logoExists): ?>
 <img src="<?= url('uploads/logos/' . $logoFile) ?>" style="max-height:60px; margin-bottom:8px;">
 <?php endif; ?>
-<div style="font-size:18px; font-weight:bold; color:#1f2a44;"><?= e($user['company_name'] ?? $user['name']) ?></div>
+<?php if ($senderName !== ''): ?><div style="font-size:18px; font-weight:bold; color:#1f2a44;"><?= e($senderName) ?></div><?php endif; ?>
 </td>
 <td style="vertical-align:top; text-align:right;">
-<div style="font-size:22px; font-weight:bold; text-transform:uppercase; color:<?= e($accent) ?>;"><?= e($template['name']) ?></div>
+<div style="font-size:22px; font-weight:bold; text-transform:uppercase; color:<?= e($accent) ?>;"><?= e($displayTitle) ?></div>
 <?php if ($documentNumber): ?><div style="font-size:13px; color:#6b7280;">#<?= e($documentNumber) ?></div><?php endif; ?>
 <?php if ($primaryDate): ?><div style="font-size:13px; color:#6b7280;"><?= e(date('F j, Y', strtotime($primaryDate))) ?></div><?php endif; ?>
 </td>
@@ -214,6 +218,13 @@ $fontFamily = $style === 'classic' ? "'Times New Roman', Georgia, serif" : 'Aria
     </div>
   <?php endforeach; ?>
 <?php endforeach; ?>
+
+<?php $closingNote = trim((string) ($data['notes'] ?? '')); ?>
+<?php if ($closingNote !== ''): ?>
+<div style="margin-top:30px; padding:14px 16px; background:#f9fafb; border-left:3px solid <?= e($accent) ?>; border-radius:4px;">
+<div style="font-size:13px; color:#374151; white-space:pre-line;"><?= e($closingNote) ?></div>
+</div>
+<?php endif; ?>
 
 <?php if ($signatureFile && file_exists(__DIR__ . '/../../../public/uploads/signatures/' . $signatureFile)): ?>
 <div style="margin-top:40px;">

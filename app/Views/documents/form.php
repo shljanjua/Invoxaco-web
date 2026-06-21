@@ -37,7 +37,7 @@ $showLogo = $document === null || (bool) $document['show_logo'];
 if (!function_exists('render_field')) {
 function render_field(array $field, array $documentData): void {
     $name = $field['name'];
-    $value = $documentData[$name] ?? '';
+    $value = array_key_exists($name, $documentData) ? $documentData[$name] : ($field['default'] ?? '');
     ?>
     <div class="mb-3">
       <?php if ($field['type'] === 'line_items'): ?>
@@ -123,7 +123,7 @@ function render_field(array $field, array $documentData): void {
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Document Title</label>
-            <input type="text" name="title" class="form-control" value="<?= e($document['title'] ?? $template['name']) ?>">
+            <input type="text" name="title" class="form-control" value="<?= e($document['title'] ?? doc_title($template['name'])) ?>">
           </div>
           <div class="col-md-6">
             <label class="form-label">Client (optional)</label>

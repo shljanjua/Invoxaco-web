@@ -80,7 +80,7 @@ class DocumentController extends Controller
             'user_id' => $user['id'],
             'template_id' => $template['id'],
             'client_id' => Request::input('client_id') ?: null,
-            'title' => Request::string('title') ?: $template['name'],
+            'title' => Request::string('title') ?: doc_title($template['name']),
             'document_number' => $data['invoice_number'] ?? $data['quote_number'] ?? $data['po_number'] ?? $data['receipt_number'] ?? null,
             'data' => json_encode($data),
             'status' => Request::string('status') === 'final' ? 'final' : 'draft',
