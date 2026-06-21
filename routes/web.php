@@ -3,7 +3,9 @@
 use App\Controllers\AuthController;
 use App\Controllers\BillingController;
 use App\Controllers\BlogController;
+use App\Controllers\CalculatorController;
 use App\Controllers\ClientController;
+use App\Controllers\CompanyProfileController;
 use App\Controllers\ContactController;
 use App\Controllers\DashboardController;
 use App\Controllers\DocumentController;
@@ -48,6 +50,12 @@ $router->post('/verify-email/resend', [AuthController::class, 'resendVerificatio
 // Dashboard
 $router->get('/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
 
+// Company Settings
+$router->group([AuthMiddleware::class], function ($router) {
+    $router->get('/settings', [CompanyProfileController::class, 'index']);
+    $router->post('/settings', [CompanyProfileController::class, 'update']);
+});
+
 // Billing
 $router->group([AuthMiddleware::class], function ($router) {
     $router->post('/billing/checkout/{plan}', [BillingController::class, 'checkout']);
@@ -56,6 +64,12 @@ $router->group([AuthMiddleware::class], function ($router) {
     $router->get('/billing/cancel', [BillingController::class, 'cancel']);
 });
 $router->post('/billing/webhook/stripe', [BillingController::class, 'webhook']);
+
+// Financial calculators
+$router->get('/calculators', [CalculatorController::class, 'index']);
+$router->get('/calculators/{slug}', [CalculatorController::class, 'show']);
+$router->post('/calculators/{slug}/calculate', [CalculatorController::class, 'calculate']);
+$router->get('/calculators/{slug}/pdf', [CalculatorController::class, 'pdf']);
 
 // Generators catalog
 $router->get('/generators', [GeneratorController::class, 'catalog']);

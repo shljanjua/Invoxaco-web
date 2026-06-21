@@ -9,6 +9,12 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <link href="<?= asset('css/app.css') ?>" rel="stylesheet">
+<script>
+(function () {
+  var theme = localStorage.getItem('invox-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
 </head>
 <body>
 <?= \App\Core\View::renderRaw('partials/analytics', []) ?>
