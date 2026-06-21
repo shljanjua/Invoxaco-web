@@ -8,6 +8,7 @@
     <div class="collapse navbar-collapse" id="mainNav">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
         <li class="nav-item"><a class="nav-link" href="<?= url('generators') ?>">Generators</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= url('calculators') ?>">Calculators</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('features') ?>">Features</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('pricing') ?>">Pricing</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('blog') ?>">Blog</a></li>
