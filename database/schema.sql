@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
     plan ENUM('free','pro','premium') NOT NULL DEFAULT 'free',
     plan_billing_cycle ENUM('monthly','yearly') NULL,
     plan_expires_at DATETIME NULL,
+    stripe_customer_id VARCHAR(190) NULL,
     company_name VARCHAR(190) NULL,
     company_logo VARCHAR(255) NULL,
     signature_path VARCHAR(255) NULL,

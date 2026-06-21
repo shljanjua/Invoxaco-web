@@ -19,6 +19,30 @@ class Subscription extends Model
         return $row ?: null;
     }
 
+    public static function findByGatewaySubscriptionId(string $gatewaySubscriptionId): ?array
+    {
+        return self::findBy('gateway_subscription_id', $gatewaySubscriptionId);
+    }
+
+    public static function upsertForUser(int $userId, array $data): void
+    {
+        $stmt = self::db()->prepare(
+            'SELECT * FROM subscriptions WHERE user_id = :user_id AND gateway = :gateway ORDER BY created_at DESC LIMIT 1'
+        );
+        $stmt->execute(['user_id' => $userId, 'gateway' => $data['gateway']]);
+        $existing = $stmt->fetch();
+
+        $data['user_id'] = $userId;
+
+        if ($existing) {
+            self::update($existing['id'], $data);
+
+            return;
+        }
+
+        self::create($data);
+    }
+
     public static function allWithUser(int $limit = 100): array
     {
         $stmt = self::db()->prepare(

@@ -52,7 +52,13 @@ class Auth
     {
         $id = self::id();
 
-        return $id ? User::find($id) : null;
+        if (!$id) {
+            return null;
+        }
+
+        $user = User::find($id);
+
+        return $user ? User::downgradeIfExpired($user) : null;
     }
 
     public static function isAdmin(): bool

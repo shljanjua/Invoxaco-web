@@ -23,6 +23,23 @@ $step = $_GET['step'] ?? '1';
 $errors = [];
 $old = $_POST;
 
+function sqlStatements(string $sql): array
+{
+    $statements = [];
+    foreach (explode(";\n", $sql) as $chunk) {
+        $lines = array_filter(
+            explode("\n", $chunk),
+            static fn (string $line): bool => !str_starts_with(trim($line), '--')
+        );
+        $statement = trim(implode("\n", $lines));
+        if ($statement !== '') {
+            $statements[] = $statement;
+        }
+    }
+
+    return $statements;
+}
+
 function requirementChecks(string $rootDir): array
 {
     return [
@@ -82,18 +99,14 @@ if ($step === '2' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $schemaSql = file_get_contents($rootDir . '/database/schema.sql');
             $seedSql = file_get_contents($rootDir . '/database/seed.sql');
 
-            foreach (array_filter(array_map('trim', explode(";\n", $schemaSql))) as $statement) {
-                if ($statement !== '') {
-                    $pdo->exec($statement);
-                }
+            foreach (sqlStatements($schemaSql) as $statement) {
+                $pdo->exec($statement);
             }
 
             $adminCount = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
             if ($adminCount === 0) {
-                foreach (array_filter(array_map('trim', explode(";\n", $seedSql))) as $statement) {
-                    if ($statement !== '' && !str_starts_with($statement, '--')) {
-                        $pdo->exec($statement);
-                    }
+                foreach (sqlStatements($seedSql) as $statement) {
+                    $pdo->exec($statement);
                 }
 
                 $hashed = password_hash($adminPassword, PASSWORD_BCRYPT);

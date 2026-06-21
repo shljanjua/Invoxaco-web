@@ -12,7 +12,7 @@ class RateLimiter
     public static function tooManyAttempts(string $key, int $maxAttempts, int $decayMinutes): bool
     {
         RateLimit::prune();
-        $attempts = RateLimit::count($key, $decayMinutes);
+        $attempts = RateLimit::countRecent($key, $decayMinutes);
 
         return $attempts >= $maxAttempts;
     }

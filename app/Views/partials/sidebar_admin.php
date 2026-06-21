@@ -9,6 +9,7 @@
         'admin/users' => ['Users', 'bi-people'],
         'admin/subscriptions' => ['Subscriptions', 'bi-credit-card'],
         'admin/payments' => ['Payments', 'bi-cash-stack'],
+        'admin/payment-settings' => ['Payment Settings', 'bi-credit-card-2-back'],
         'admin/categories' => ['Categories', 'bi-collection'],
         'admin/generators' => ['Generators', 'bi-file-earmark-text'],
         'admin/blog' => ['Blog', 'bi-newspaper'],

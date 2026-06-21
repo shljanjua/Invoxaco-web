@@ -21,6 +21,11 @@ class Payment extends Model
         return $stmt->fetchAll();
     }
 
+    public static function findByGatewayPaymentId(string $gatewayPaymentId): ?array
+    {
+        return self::findBy('gateway_payment_id', $gatewayPaymentId);
+    }
+
     public static function totalRevenue(): float
     {
         $stmt = self::db()->query("SELECT COALESCE(SUM(amount),0) AS total FROM payments WHERE status = 'completed'");

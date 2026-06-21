@@ -8,14 +8,21 @@
 /** @var bool $watermark */
 /** @var bool $forBrowser */
 
-$dateFields = ['invoice_date', 'due_date', 'receipt_date', 'quote_date', 'valid_until', 'po_date', 'agreement_date', 'contract_date', 'start_date', 'end_date', 'letter_date', 'proposal_date'];
-$skipInHeader = array_merge($dateFields, ['invoice_number', 'receipt_number', 'quote_number', 'po_number', 'items', 'from_name', 'to_name', 'ship_to']);
+$documentNumberFields = ['invoice_number', 'receipt_number', 'quote_number', 'po_number'];
+$primaryDateFields = ['invoice_date', 'receipt_date', 'quote_date', 'po_date', 'agreement_date', 'contract_date', 'letter_date', 'proposal_date'];
 
-$documentNumber = $data['invoice_number'] ?? $data['receipt_number'] ?? $data['quote_number'] ?? $data['po_number'] ?? null;
-$primaryDate = null;
-foreach (['invoice_date', 'receipt_date', 'quote_date', 'po_date', 'agreement_date', 'contract_date', 'letter_date', 'proposal_date'] as $df) {
-    if (!empty($data[$df])) { $primaryDate = $data[$df]; break; }
+$documentNumber = null;
+foreach ($documentNumberFields as $nf) {
+    if (!empty($data[$nf])) { $documentNumber = $data[$nf]; break; }
 }
+
+$primaryDateField = null;
+$primaryDate = null;
+foreach ($primaryDateFields as $df) {
+    if (!empty($data[$df])) { $primaryDateField = $df; $primaryDate = $data[$df]; break; }
+}
+
+$skipInHeader = array_merge($documentNumberFields, ['items', 'from_name', 'to_name', 'ship_to'], $primaryDateField ? [$primaryDateField] : []);
 $logoFile = $user['company_logo'] ?? null;
 $signatureFile = $user['signature_path'] ?? null;
 ?>
@@ -74,6 +81,7 @@ $signatureFile = $user['signature_path'] ?? null;
 <?php foreach ($fields as $field): ?>
   <?php if (in_array($field['name'], $skipInHeader, true)) continue; ?>
   <?php $value = $data[$field['name']] ?? ''; if ($value === '' || $value === null) continue; ?>
+  <?php if (($field['type'] ?? '') === 'date' && strtotime((string) $value) !== false) { $value = date('F j, Y', strtotime((string) $value)); } ?>
   <div style="margin-bottom:16px;">
     <div style="font-size:11px; color:#9ca3af; text-transform:uppercase; margin-bottom:4px;"><?= e($field['label']) ?></div>
     <div style="font-size:13px; white-space:pre-line;"><?= e(is_array($value) ? implode(', ', $value) : (string) $value) ?></div>

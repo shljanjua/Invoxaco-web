@@ -6,6 +6,7 @@ use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\ContactController as AdminContactController;
 use App\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Controllers\Admin\PaymentController;
+use App\Controllers\Admin\PaymentSettingController;
 use App\Controllers\Admin\SeoController;
 use App\Controllers\Admin\SettingController;
 use App\Controllers\Admin\SmtpController;
@@ -27,6 +28,8 @@ $router->group([AdminMiddleware::class], function ($router) {
 
     $router->get('/admin/subscriptions', [SubscriptionController::class, 'index']);
     $router->get('/admin/payments', [PaymentController::class, 'index']);
+    $router->get('/admin/payment-settings', [PaymentSettingController::class, 'index']);
+    $router->post('/admin/payment-settings', [PaymentSettingController::class, 'update']);
 
     $router->get('/admin/categories', [CategoryController::class, 'index']);
     $router->post('/admin/categories', [CategoryController::class, 'store']);

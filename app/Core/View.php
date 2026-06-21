@@ -19,7 +19,7 @@ class View
         return self::renderRaw($layout, $data);
     }
 
-    public static function renderRaw(string $view, array $data = []): string
+    public static function renderRaw(string $view, array $viewData = []): string
     {
         $path = __DIR__ . '/../Views/' . $view . '.php';
 
@@ -27,7 +27,7 @@ class View
             throw new \RuntimeException('View not found: ' . $view);
         }
 
-        extract($data, EXTR_SKIP);
+        extract($viewData, EXTR_SKIP);
         ob_start();
         include $path;
 

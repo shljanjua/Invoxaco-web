@@ -17,6 +17,9 @@ public/uploads/signatures/*
 !public/uploads/logos/.gitkeep
 !public/uploads/signatures/.gitkeep
 
+# Dompdf runtime font metric cache (regenerated on first use)
+vendor/dompdf/dompdf/lib/fonts/*.afm.json
+
 # OS / editor
 .DS_Store
 Thumbs.db
