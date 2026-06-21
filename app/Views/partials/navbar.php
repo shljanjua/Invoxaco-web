@@ -1,7 +1,10 @@
 <?php $user = auth_user(); ?>
-<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom shadow-sm py-2">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top border-bottom shadow-sm py-2" id="mainNavbar">
   <div class="container">
-    <a class="navbar-brand fw-bold fs-4 text-primary" href="<?= url() ?>">Invoxaco</a>
+    <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" href="<?= url() ?>" id="navbarBrand">
+      <img src="<?= asset('img/logo.png') ?>" alt="Invoxaco" height="34">
+      Invoxaco
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -48,6 +51,7 @@
 <script>
 (function () {
   var btn = document.getElementById('themeToggle');
+  if (!btn) return;
   var icon = btn.querySelector('i');
   function sync() {
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';

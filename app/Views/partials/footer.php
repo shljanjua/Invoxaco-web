@@ -2,7 +2,10 @@
   <div class="container">
     <div class="row g-4">
       <div class="col-lg-4">
-        <h5 class="fw-bold text-white mb-3">Invoxaco</h5>
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <img src="<?= asset('img/logo.png') ?>" alt="Invoxaco" height="32">
+          <h5 class="fw-bold text-white mb-0">Invoxaco</h5>
+        </div>
         <p class="text-secondary small">Generate professional business documents — invoices, contracts, quotations, and more — in minutes. Save, edit, download, and email them directly from your dashboard.</p>
         <p class="text-secondary small mb-0">Support: <a class="text-light" href="mailto:support@invoxaco.com">support@invoxaco.com</a></p>
       </div>

@@ -13,8 +13,9 @@ class HomeController extends Controller
     public function index(): void
     {
         $this->view('home/index', [
-            'metaTitle' => 'Invoxaco - Free Online Business Document Generator',
-            'metaDescription' => 'Create invoices, quotations, contracts, receipts, and 100+ business documents online. Generate, save, and download as PDF or Word in minutes. Free to start.',
+            'metaTitle' => 'Invoxaco - Free Online Invoice & Business Document Generator',
+            'metaDescription' => 'Create invoices, quotes, contracts & 110+ business documents online. Save, download as PDF or Word in minutes. Free to start, no credit card.',
+            'metaKeywords' => 'invoice generator, free invoice maker, business document generator, invoice template, quotation generator, contract generator, CV builder, salary slip generator, online invoicing software',
             'categories' => Category::withTemplateCounts(),
             'builtTemplates' => DocumentTemplate::builtTemplates(),
             'posts' => BlogPost::published(3),

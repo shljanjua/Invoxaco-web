@@ -1,25 +1,42 @@
-<div class="bg-primary bg-gradient text-white py-5">
+<div class="hero-banner text-white py-5">
   <div class="container py-4">
     <div class="row align-items-center g-4">
       <div class="col-lg-7">
-        <h1 class="fw-bold display-5">Generate Professional Business Documents in Minutes</h1>
-        <p class="fs-5 opacity-90 mb-4">Invoices, quotations, contracts, receipts, and 100+ other documents — created, saved, and downloaded as PDF or Word, free to start.</p>
+        <span class="badge rounded-pill bg-white text-primary fw-semibold px-3 py-2 mb-3"><i class="bi bi-stars me-1"></i>Trusted by freelancers &amp; small businesses worldwide</span>
+        <h1 class="fw-bold display-4 mb-3">Stop wrestling with Word &amp; Excel. <span class="text-warning">Generate it in seconds.</span></h1>
+        <p class="fs-5 opacity-90 mb-4">Invoices, contracts, CVs, salary slips, company profiles, and 110+ other professional documents — filled in, branded with your logo, and ready to download as PDF or Word. No design skills required.</p>
         <div class="d-flex gap-2 flex-wrap">
-          <a href="<?= url('register') ?>" class="btn btn-light btn-lg fw-bold">Get Started Free</a>
-          <a href="<?= url('generators') ?>" class="btn btn-outline-light btn-lg">Browse Generators</a>
+          <a href="<?= url('register') ?>" class="btn btn-light btn-lg fw-bold text-primary"><i class="bi bi-rocket-takeoff me-1"></i>Get Started Free</a>
+          <a href="<?= url('generators') ?>" class="btn btn-outline-light btn-lg">Browse 110+ Generators</a>
         </div>
-        <p class="small opacity-75 mt-3 mb-0">No credit card required &middot; 10 free documents every month</p>
+        <p class="small opacity-75 mt-3 mb-0"><i class="bi bi-check-circle-fill me-1"></i>No credit card required &middot; <i class="bi bi-check-circle-fill me-1"></i>10 free documents every month &middot; <i class="bi bi-check-circle-fill me-1"></i>Cancel anytime</p>
+
+        <div class="row g-3 mt-4 hero-stats">
+          <div class="col-4">
+            <div class="fw-bold fs-3">110+</div>
+            <div class="small opacity-75">Document Templates</div>
+          </div>
+          <div class="col-4">
+            <div class="fw-bold fs-3">16+</div>
+            <div class="small opacity-75">Financial Calculators</div>
+          </div>
+          <div class="col-4">
+            <div class="fw-bold fs-3">100%</div>
+            <div class="small opacity-75">Online &amp; Free to Start</div>
+          </div>
+        </div>
       </div>
       <div class="col-lg-5">
         <div class="card border-0 shadow-lg rounded-4 text-dark">
           <div class="card-body p-4">
-            <h6 class="fw-bold mb-3">Popular right now</h6>
+            <h6 class="fw-bold mb-3"><i class="bi bi-fire text-danger me-1"></i>Popular right now</h6>
             <?php foreach (array_slice($builtTemplates, 0, 5) as $t): ?>
               <a href="<?= url('generators/' . $t['slug']) ?>" class="d-flex justify-content-between align-items-center py-2 border-bottom text-decoration-none text-dark">
                 <span><?= e($t['name']) ?></span>
                 <i class="bi bi-arrow-right"></i>
               </a>
             <?php endforeach; ?>
+            <a href="<?= url('generators') ?>" class="btn btn-primary w-100 mt-3">See All Generators</a>
           </div>
         </div>
       </div>

@@ -22,7 +22,14 @@ foreach ($primaryDateFields as $df) {
     if (!empty($data[$df])) { $primaryDateField = $df; $primaryDate = $data[$df]; break; }
 }
 
-$skipInHeader = array_merge($documentNumberFields, ['items', 'from_name', 'to_name', 'ship_to'], $primaryDateField ? [$primaryDateField] : []);
+$structuredFieldNames = [];
+foreach ($fields as $f) {
+    if (in_array($f['type'] ?? '', ['line_items', 'group_list'], true)) {
+        $structuredFieldNames[] = $f['name'];
+    }
+}
+
+$skipInHeader = array_merge($documentNumberFields, $structuredFieldNames, ['from_name', 'to_name', 'ship_to'], $primaryDateField ? [$primaryDateField] : []);
 
 $accent = preg_match('/^#[0-9a-fA-F]{6}$/', (string) ($document['accent_color'] ?? '')) ? $document['accent_color'] : '#2563eb';
 $style = in_array($document['template_style'] ?? '', ['modern', 'classic', 'minimal', 'bold'], true) ? $document['template_style'] : 'modern';
@@ -152,35 +159,61 @@ $fontFamily = $style === 'classic' ? "'Times New Roman', Georgia, serif" : 'Aria
   </div>
 <?php endforeach; ?>
 
-<?php if (!empty($data['items']) && is_array($data['items'])): ?>
-<table style="width:100%; border-collapse:collapse; margin:20px 0;">
-<thead>
-<tr style="background:<?= e($accent) ?>;">
-<th style="text-align:left; padding:10px; font-size:12px; color:#fff;">Description</th>
-<th style="text-align:right; padding:10px; font-size:12px; color:#fff;">Qty</th>
-<th style="text-align:right; padding:10px; font-size:12px; color:#fff;">Price</th>
-<th style="text-align:right; padding:10px; font-size:12px; color:#fff;">Total</th>
-</tr>
-</thead>
-<tbody>
-<?php foreach ($data['items'] as $item): ?>
-<tr>
-<td style="padding:8px; font-size:13px; border-bottom:1px solid #f3f4f6;"><?= e($item['description'] ?? '') ?></td>
-<td style="padding:8px; font-size:13px; text-align:right; border-bottom:1px solid #f3f4f6;"><?= e((string) ($item['qty'] ?? '')) ?></td>
-<td style="padding:8px; font-size:13px; text-align:right; border-bottom:1px solid #f3f4f6;"><?= money((float) ($item['price'] ?? 0), $currency) ?></td>
-<td style="padding:8px; font-size:13px; text-align:right; border-bottom:1px solid #f3f4f6;"><?= money((float) ($item['total'] ?? 0), $currency) ?></td>
-</tr>
+<?php foreach ($fields as $field): ?>
+  <?php if (($field['type'] ?? '') !== 'line_items') continue; ?>
+  <?php $name = $field['name']; $rows = $data[$name] ?? []; if (empty($rows) || !is_array($rows)) continue; ?>
+  <?php $isPrimary = $name === 'items'; ?>
+  <div style="margin-bottom:6px; font-size:11px; color:#9ca3af; text-transform:uppercase;"><?= e($field['label']) ?></div>
+  <table style="width:100%; border-collapse:collapse; margin:0 0 20px;">
+  <thead>
+  <tr style="background:<?= e($accent) ?>;">
+  <th style="text-align:left; padding:10px; font-size:12px; color:#fff;">Description</th>
+  <th style="text-align:right; padding:10px; font-size:12px; color:#fff;">Qty</th>
+  <th style="text-align:right; padding:10px; font-size:12px; color:#fff;">Price</th>
+  <th style="text-align:right; padding:10px; font-size:12px; color:#fff;">Total</th>
+  </tr>
+  </thead>
+  <tbody>
+  <?php foreach ($rows as $item): ?>
+  <tr>
+  <td style="padding:8px; font-size:13px; border-bottom:1px solid #f3f4f6;"><?= e($item['description'] ?? '') ?></td>
+  <td style="padding:8px; font-size:13px; text-align:right; border-bottom:1px solid #f3f4f6;"><?= e((string) ($item['qty'] ?? '')) ?></td>
+  <td style="padding:8px; font-size:13px; text-align:right; border-bottom:1px solid #f3f4f6;"><?= money((float) ($item['price'] ?? 0), $currency) ?></td>
+  <td style="padding:8px; font-size:13px; text-align:right; border-bottom:1px solid #f3f4f6;"><?= money((float) ($item['total'] ?? 0), $currency) ?></td>
+  </tr>
+  <?php endforeach; ?>
+  </tbody>
+  </table>
+  <table style="width:100%; margin-bottom:20px;">
+  <tr><td style="text-align:right; padding:4px; font-size:13px; width:80%;">Subtotal</td><td style="text-align:right; padding:4px; font-size:13px;"><?= money((float) ($data[$isPrimary ? 'subtotal' : $name . '_subtotal'] ?? 0), $currency) ?></td></tr>
+  <?php if ($isPrimary && !empty($data['tax_rate'])): ?>
+  <tr><td style="text-align:right; padding:4px; font-size:13px;">Tax (<?= e((string) $data['tax_rate']) ?>%)</td><td style="text-align:right; padding:4px; font-size:13px;"><?= money((float) ($data['tax_amount'] ?? 0), $currency) ?></td></tr>
+  <tr><td style="text-align:right; padding:10px; font-size:16px; font-weight:bold; border-top:2px solid <?= e($accent) ?>;">Total</td><td style="text-align:right; padding:10px; font-size:16px; font-weight:bold; border-top:2px solid <?= e($accent) ?>; color:<?= e($accent) ?>;"><?= money((float) ($data['grand_total'] ?? 0), $currency) ?></td></tr>
+  <?php endif; ?>
+  </table>
 <?php endforeach; ?>
-</tbody>
-</table>
-<table style="width:100%;">
-<tr><td style="text-align:right; padding:4px; font-size:13px; width:80%;">Subtotal</td><td style="text-align:right; padding:4px; font-size:13px;"><?= money((float) ($data['subtotal'] ?? 0), $currency) ?></td></tr>
-<?php if (!empty($data['tax_rate'])): ?>
-<tr><td style="text-align:right; padding:4px; font-size:13px;">Tax (<?= e((string) $data['tax_rate']) ?>%)</td><td style="text-align:right; padding:4px; font-size:13px;"><?= money((float) ($data['tax_amount'] ?? 0), $currency) ?></td></tr>
-<?php endif; ?>
-<tr><td style="text-align:right; padding:10px; font-size:16px; font-weight:bold; border-top:2px solid <?= e($accent) ?>;">Total</td><td style="text-align:right; padding:10px; font-size:16px; font-weight:bold; border-top:2px solid <?= e($accent) ?>; color:<?= e($accent) ?>;"><?= money((float) ($data['grand_total'] ?? 0), $currency) ?></td></tr>
-</table>
-<?php endif; ?>
+
+<?php foreach ($fields as $field): ?>
+  <?php if (($field['type'] ?? '') !== 'group_list') continue; ?>
+  <?php $rows = $data[$field['name']] ?? []; if (empty($rows) || !is_array($rows)) continue; ?>
+  <?php $columns = $field['columns'] ?? []; ?>
+  <div style="margin-bottom:10px; font-size:11px; color:#9ca3af; text-transform:uppercase;"><?= e($field['label']) ?></div>
+  <?php foreach ($rows as $row): ?>
+    <?php $cols = array_values($columns); $titleCol = $cols[0] ?? null; $subCol = $cols[1] ?? null; ?>
+    <div style="margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid #f3f4f6;">
+      <?php if ($titleCol && ($row[$titleCol['name']] ?? '') !== ''): ?>
+      <div style="font-size:14px; font-weight:bold; color:#1f2937;"><?= e($row[$titleCol['name']]) ?></div>
+      <?php endif; ?>
+      <?php if ($subCol && ($row[$subCol['name']] ?? '') !== ''): ?>
+      <div style="font-size:12px; color:<?= e($accent) ?>; margin-bottom:4px;"><?= e($row[$subCol['name']]) ?></div>
+      <?php endif; ?>
+      <?php foreach (array_slice($cols, 2) as $col): ?>
+        <?php if (($row[$col['name']] ?? '') === '') continue; ?>
+        <div style="font-size:12px; color:#374151; white-space:pre-line; margin-top:2px;"><?= e($row[$col['name']]) ?></div>
+      <?php endforeach; ?>
+    </div>
+  <?php endforeach; ?>
+<?php endforeach; ?>
 
 <?php if ($signatureFile && file_exists(__DIR__ . '/../../../public/uploads/signatures/' . $signatureFile)): ?>
 <div style="margin-top:40px;">

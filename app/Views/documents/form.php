@@ -42,18 +42,40 @@ function render_field(array $field, array $documentData): void {
     <div class="mb-3">
       <?php if ($field['type'] === 'line_items'): ?>
         <label class="form-label fw-bold"><?= e($field['label']) ?></label>
-        <div id="lineItems">
+        <div class="repeater-rows" data-repeater="<?= e($name) ?>">
           <?php $items = is_array($value) && !empty($value) ? $value : [['description' => '', 'qty' => 1, 'price' => 0]]; ?>
           <?php foreach ($items as $item): ?>
-          <div class="row g-2 mb-2 line-item">
-            <div class="col-5"><input type="text" name="items_description[]" class="form-control" placeholder="Description" value="<?= e($item['description'] ?? '') ?>"></div>
-            <div class="col-2"><input type="number" step="0.01" name="items_qty[]" class="form-control" placeholder="Qty" value="<?= e((string) ($item['qty'] ?? 1)) ?>"></div>
-            <div class="col-3"><input type="number" step="0.01" name="items_price[]" class="form-control" placeholder="Price" value="<?= e((string) ($item['price'] ?? 0)) ?>"></div>
-            <div class="col-2"><button type="button" class="btn btn-outline-danger w-100 remove-item"><i class="bi bi-x"></i></button></div>
+          <div class="row g-2 mb-2 repeater-row">
+            <div class="col-5"><input type="text" name="<?= e($name) ?>_description[]" class="form-control" placeholder="Description" value="<?= e($item['description'] ?? '') ?>"></div>
+            <div class="col-2"><input type="number" step="0.01" name="<?= e($name) ?>_qty[]" class="form-control" placeholder="Qty" value="<?= e((string) ($item['qty'] ?? 1)) ?>"></div>
+            <div class="col-3"><input type="number" step="0.01" name="<?= e($name) ?>_price[]" class="form-control" placeholder="Price" value="<?= e((string) ($item['price'] ?? 0)) ?>"></div>
+            <div class="col-2"><button type="button" class="btn btn-outline-danger w-100 remove-row"><i class="bi bi-x"></i></button></div>
           </div>
           <?php endforeach; ?>
         </div>
-        <button type="button" id="addItem" class="btn btn-sm btn-outline-primary mt-1"><i class="bi bi-plus"></i> Add Line</button>
+        <button type="button" class="btn btn-sm btn-outline-primary mt-1 add-row" data-repeater-target="<?= e($name) ?>"><i class="bi bi-plus"></i> Add Line</button>
+      <?php elseif ($field['type'] === 'group_list'): ?>
+        <?php $columns = $field['columns'] ?? []; ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <?php if (!empty($field['help'])): ?><div class="form-text mb-2"><?= e($field['help']) ?></div><?php endif; ?>
+        <div class="repeater-rows" data-repeater="<?= e($name) ?>">
+          <?php $rows = is_array($value) && !empty($value) ? $value : [[]]; ?>
+          <?php foreach ($rows as $row): ?>
+          <div class="row g-2 mb-2 repeater-row border rounded-3 p-2">
+            <?php foreach ($columns as $col): ?>
+              <div class="col-md<?= ($col['type'] ?? 'text') === 'textarea' ? '-12' : '' ?>">
+                <?php if (($col['type'] ?? 'text') === 'textarea'): ?>
+                  <textarea name="<?= e($name) ?>_<?= e($col['name']) ?>[]" class="form-control mb-1" rows="2" placeholder="<?= e($col['label']) ?>"><?= e($row[$col['name']] ?? '') ?></textarea>
+                <?php else: ?>
+                  <input type="text" name="<?= e($name) ?>_<?= e($col['name']) ?>[]" class="form-control mb-1" placeholder="<?= e($col['label']) ?>" value="<?= e($row[$col['name']] ?? '') ?>">
+                <?php endif; ?>
+              </div>
+            <?php endforeach; ?>
+            <div class="col-12 text-end"><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-x"></i> Remove</button></div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-primary mt-1 add-row" data-repeater-target="<?= e($name) ?>"><i class="bi bi-plus"></i> Add Entry</button>
       <?php elseif ($field['type'] === 'textarea'): ?>
         <label class="form-label"><?= e($field['label']) ?></label>
         <textarea name="<?= e($name) ?>" class="form-control" rows="3" <?= $field['required'] ? 'required' : '' ?>><?= e(is_array($value) ? '' : (string) $value) ?></textarea>
@@ -144,7 +166,14 @@ function render_field(array $field, array $documentData): void {
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label">Accent Color</label>
-              <input type="color" name="accent_color" class="form-control form-control-color w-100" value="<?= e($accentColor) ?>">
+              <input type="color" name="accent_color" id="accentColorInput" class="form-control form-control-color w-100" value="<?= e($accentColor) ?>">
+              <div class="d-flex flex-wrap gap-2 mt-2" id="accentSwatches">
+                <?php
+                $presetColors = ['#2563eb', '#4338ca', '#7c3aed', '#db2777', '#dc2626', '#ea580c', '#d97706', '#16a34a', '#0d9488', '#0891b2', '#475569', '#111827'];
+                foreach ($presetColors as $pc): ?>
+                <button type="button" class="accent-swatch" data-color="<?= e($pc) ?>" style="width:24px;height:24px;border-radius:50%;border:2px solid #fff;outline:1px solid #e5e7eb;background-color:<?= e($pc) ?>;cursor:pointer;"></button>
+                <?php endforeach; ?>
+              </div>
               <div class="form-text">Used for headings and totals in the PDF.</div>
             </div>
             <div class="col-md-4">
@@ -212,16 +241,38 @@ document.querySelectorAll('#generatorTabs .nav-link').forEach(function (btn) {
   });
 });
 
-document.getElementById('addItem')?.addEventListener('click', function () {
-  const container = document.getElementById('lineItems');
-  const row = container.querySelector('.line-item').cloneNode(true);
-  row.querySelectorAll('input').forEach(i => i.value = i.type === 'number' ? '' : '');
-  container.appendChild(row);
-});
 document.addEventListener('click', function (e) {
-  if (e.target.closest('.remove-item')) {
-    const items = document.querySelectorAll('.line-item');
-    if (items.length > 1) e.target.closest('.line-item').remove();
+  const swatch = e.target.closest('.accent-swatch');
+  if (swatch) {
+    document.getElementById('accentColorInput').value = swatch.dataset.color;
+    document.getElementById('accentColorInput').dispatchEvent(new Event('input', { bubbles: true }));
+    return;
+  }
+
+  const addBtn = e.target.closest('.add-row');
+  if (addBtn) {
+    const target = addBtn.dataset.repeaterTarget;
+    const container = document.querySelector('.repeater-rows[data-repeater="' + target + '"]');
+    if (!container) return;
+    const rows = container.querySelectorAll('.repeater-row');
+    const row = rows[rows.length - 1].cloneNode(true);
+    row.querySelectorAll('input, textarea').forEach(function (field) {
+      if (field.type === 'number') {
+        field.value = /_qty\[\]$/.test(field.name) ? 1 : '';
+      } else {
+        field.value = '';
+      }
+    });
+    container.appendChild(row);
+    return;
+  }
+
+  const removeBtn = e.target.closest('.remove-row');
+  if (removeBtn) {
+    const container = removeBtn.closest('.repeater-rows');
+    if (container && container.querySelectorAll('.repeater-row').length > 1) {
+      removeBtn.closest('.repeater-row').remove();
+    }
   }
 });
 

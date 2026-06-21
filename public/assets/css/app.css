@@ -11,7 +11,37 @@ body {
 
 .navbar-brand {
   font-weight: 700;
+}
+
+#mainNavbar {
+  background-color: #faf3e0 !important;
+}
+
+#mainNavbar .navbar-brand,
+#mainNavbar .nav-link {
+  color: #1a1a1a !important;
+}
+
+#mainNavbar .nav-link:hover,
+#mainNavbar .nav-link.active {
   color: var(--invox-primary) !important;
+}
+
+#mainNavbar .navbar-toggler-icon {
+  filter: brightness(0.3);
+}
+
+[data-theme="dark"] #mainNavbar {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] #mainNavbar .navbar-brand,
+[data-theme="dark"] #mainNavbar .nav-link {
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] #mainNavbar .navbar-toggler-icon {
+  filter: none;
 }
 
 .btn-primary {
@@ -50,6 +80,26 @@ body {
 .hero h1 {
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+.hero-banner {
+  background: linear-gradient(135deg, #4338ca 0%, #2563eb 55%, #0ea5e9 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 85% 20%, rgba(255,255,255,0.12) 0, transparent 45%),
+    radial-gradient(circle at 10% 90%, rgba(255,255,255,0.08) 0, transparent 40%);
+  pointer-events: none;
+}
+
+.hero-stats {
+  border-top: 1px solid rgba(255,255,255,0.25);
+  padding-top: 1rem;
 }
 
 .generator-card {
