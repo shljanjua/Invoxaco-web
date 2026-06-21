@@ -161,3 +161,155 @@ INSERT INTO seo_settings (page_key, meta_title, meta_description, robots) VALUES
 INSERT INTO seo_settings (page_key, meta_title, meta_description, robots) VALUES ('blog', 'Blog - Invoxaco', 'Tips on invoicing, freelancing, contracts, and growing your business from the Invoxaco team.', 'index,follow');
 INSERT INTO seo_settings (page_key, meta_title, meta_description, robots) VALUES ('about', 'About Us - Invoxaco', 'Learn about Invoxaco, the SaaS platform helping businesses generate professional documents in minutes.', 'index,follow');
 INSERT INTO seo_settings (page_key, meta_title, meta_description, robots) VALUES ('contact', 'Contact Us - Invoxaco', 'Get in touch with the Invoxaco support team for help with your account, billing, or document generators.', 'index,follow');
+
+-- Blog posts
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (1, NULL, '10 Business Documents Every Small Business Owner Needs in 2026', '10-business-documents-every-small-business-owner-needs', 'From invoices to NDAs, here are the documents that keep a small business running smoothly — and how to create them in minutes instead of hours.', '<p>Running a small business means wearing a dozen hats, and "document creator" is one most owners never expected to add to the list. Yet the right paperwork — done well and done quickly — is what keeps client relationships professional, payments on time, and your business protected.</p>
+<p>Here are ten documents worth having ready before you need them:</p>
+<ul>
+<li><strong>Invoice</strong> — the single most important document for getting paid. A clear invoice with itemized charges and payment terms reduces back-and-forth and late payments.</li>
+<li><strong>Quotation</strong> — sets expectations before work begins and gives prospective clients something concrete to approve.</li>
+<li><strong>Service Agreement</strong> — spells out scope, payment terms, and responsibilities so both sides know what "done" looks like.</li>
+<li><strong>Non-Disclosure Agreement (NDA)</strong> — protects sensitive information when you''re discussing a deal, a hire, or a partnership.</li>
+<li><strong>Receipt</strong> — confirms payment was received and closes the loop on a transaction.</li>
+<li><strong>Purchase Order</strong> — keeps your supplier relationships organized and your spending documented.</li>
+<li><strong>Offer Letter</strong> — makes hiring feel official and sets the tone for a new employee relationship.</li>
+<li><strong>Business Proposal</strong> — the document that actually wins the deal; it should be persuasive, not just informative.</li>
+<li><strong>Expense Report</strong> — keeps your bookkeeping (and your accountant) sane at tax time.</li>
+<li><strong>Partnership Agreement</strong> — if you''re going into business with someone else, get the terms in writing before the first dollar changes hands.</li>
+</ul>
+<p>The traditional way to produce these is to either hire a lawyer for every template or hunt down a generic Word document and hope the formatting holds up. Invoxaco takes a different approach: pick the document type, fill in a short form, and download a polished PDF or DOCX in under a minute — no design skills, no legal fees for routine paperwork.</p>
+<p>Start with the documents you reach for most often, save them once, and you''ll have a head start every time you need them again.</p>', 'business documents,small business,templates', 'published', '10 Business Documents Every Small Business Owner Needs in 2026 | Invoxaco Blog', 'From invoices to NDAs, here are the documents that keep a small business running smoothly — and how to create them in minutes instead of hours.', '2026-01-15 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (1, NULL, 'How to Stay Organized as a Solo Business Owner', 'how-to-stay-organized-as-a-solo-business-owner', 'No team, no assistant, no problem. A few simple habits around documents and client records can save you hours every week.', '<p>When you''re the only person running the show, "organized" usually means the difference between a business that scales and one that quietly burns you out. The good news is that most of the chaos solo owners deal with comes down to a handful of fixable habits.</p>
+<h2>Keep every client document in one place</h2>
+<p>Scattered invoices in email drafts, contracts buried in downloads folders, and quotes that exist only as a text message are a recipe for missed payments and forgotten commitments. Centralize everything — even if "everything" starts as a single folder per client.</p>
+<h2>Use consistent numbering</h2>
+<p>Invoice #1047 is easier to track, search, and reference in a conversation than "the invoice I sent last Tuesday." Sequential numbering across invoices, quotes, and purchase orders makes your own records (and your accountant''s job) far easier.</p>
+<h2>Template everything you repeat</h2>
+<p>If you''re rewriting the same contract clauses or invoice notes from scratch every time, you''re losing time you don''t have. Build a small library of go-to documents — a standard service agreement, a standard invoice layout, a standard onboarding form — and reuse them.</p>
+<h2>Automate the boring parts</h2>
+<p>Calculating line-item totals, applying tax rates, and formatting a document so it looks professional are exactly the kind of repetitive tasks that should be automated. Tools like Invoxaco handle the math and the layout so you can focus on the client relationship instead of the spreadsheet.</p>
+<p>None of this requires new software budgets or a personal assistant. It just requires picking one habit this week and sticking with it until it''s automatic.</p>', 'organization,solo business,productivity', 'published', 'How to Stay Organized as a Solo Business Owner | Invoxaco Blog', 'No team, no assistant, no problem. A few simple habits around documents and client records can save you hours every week.', '2026-01-24 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (2, NULL, 'How to Write an Invoice That Gets You Paid Faster', 'how-to-write-an-invoice-that-gets-you-paid-faster', 'Late payments are rarely about bad clients — they are usually about unclear invoices. Here is what to fix.', '<p>Most late payments aren''t caused by clients who refuse to pay — they''re caused by invoices that are confusing, incomplete, or easy to set aside "until later." A well-built invoice removes every excuse for delay.</p>
+<h2>Put the essentials front and center</h2>
+<p>Invoice number, issue date, and due date should be impossible to miss. If a due date is buried in paragraph three of your terms, don''t be surprised when it gets missed.</p>
+<h2>Itemize, don''t summarize</h2>
+<p>"Consulting services — $2,400" invites questions. "12 hours of strategy consulting at $200/hr" does not. Clear line items build trust and reduce the chance a client disputes the total.</p>
+<h2>State your payment terms in plain language</h2>
+<p>"Net 15" means something to an accountant; "Payment due within 15 days of invoice date" means something to everyone. Spell it out.</p>
+<h2>Make the total impossible to miss</h2>
+<p>Subtotal, tax, and grand total should be visually distinct from the line items above them — bold, larger, and clearly the final number a client needs to pay.</p>
+<h2>Send it the same day, every time</h2>
+<p>Invoices sent immediately after work is completed get paid faster than invoices that wait for a "batch" at the end of the month. The longer the delay between delivering value and asking for payment, the easier it is for your invoice to lose priority in someone else''s inbox.</p>
+<p>Invoxaco''s invoice generator handles the layout, the totals, and the formatting automatically — so you can focus on getting the invoice out the door quickly rather than building one from scratch every time.</p>', 'invoicing,getting paid,cash flow', 'published', 'How to Write an Invoice That Gets You Paid Faster | Invoxaco Blog', 'Late payments are rarely about bad clients — they are usually about unclear invoices. Here is what to fix.', '2026-02-02 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (2, NULL, 'Invoice vs Receipt: What''s the Difference and When to Use Each', 'invoice-vs-receipt-difference', 'They look similar, but invoices and receipts serve completely different purposes in a transaction. Here is how to tell them apart.', '<p>It''s one of the most common mix-ups in small business paperwork: invoices and receipts look similar on the page, but they serve opposite ends of the same transaction.</p>
+<h2>An invoice is a request for payment</h2>
+<p>You send an invoice before or immediately after delivering goods or services, and it tells the client how much they owe and by when. It''s forward-looking — it documents an obligation that hasn''t been settled yet.</p>
+<h2>A receipt is proof that payment happened</h2>
+<p>A receipt is issued after money has changed hands. It confirms the amount paid, the date, and the method of payment. It''s backward-looking — it documents something that''s already done.</p>
+<h2>Why the distinction matters</h2>
+<p>Mixing them up causes real problems. Sending a "receipt" for work that hasn''t been paid for yet can confuse a client into thinking the matter is closed. Sending an "invoice" after payment has already been received looks like you''re asking to be paid twice.</p>
+<h2>A simple rule of thumb</h2>
+<p>If money is still owed, it''s an invoice. If money has already been received, it''s a receipt. Many businesses issue both for the same transaction: an invoice to request payment, followed by a receipt once that payment clears.</p>
+<p>Invoxaco includes dedicated generators for both, so you''re never stuck repurposing the wrong template for the wrong moment in the transaction.</p>', 'invoicing,receipts,finance basics', 'published', 'Invoice vs Receipt: What''s the Difference and When to Use Each | Invoxaco Blog', 'They look similar, but invoices and receipts serve completely different purposes in a transaction. Here is how to tell them apart.', '2026-02-11 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (3, NULL, 'A Freelancer''s Guide to Contracts: What to Include Before You Start Work', 'freelancers-guide-to-contracts', 'A solid freelance contract protects both sides and prevents the misunderstandings that derail otherwise good client relationships.', '<p>The fastest way to damage a freelance relationship isn''t a missed deadline — it''s a disagreement about what was actually promised. A clear contract, signed before work begins, prevents most of these disputes before they start.</p>
+<h2>Scope of work</h2>
+<p>Describe exactly what you''re delivering, in specific enough terms that there''s no ambiguity about what counts as "done." Vague scope is the single biggest source of freelance scope creep.</p>
+<h2>Payment terms</h2>
+<p>State your rate, your payment schedule (upfront deposit, milestones, or on completion), and what happens if a payment is late. Clients respect freelancers who treat their own time as valuable — and a clear payment clause signals exactly that.</p>
+<h2>Timeline and revisions</h2>
+<p>Set a realistic delivery date and define how many rounds of revisions are included before additional work is billed separately. Without this, "just one more small change" can turn into a second unpaid project.</p>
+<h2>Ownership and usage rights</h2>
+<p>Clarify who owns the final work once it''s paid for, and whether you retain the right to use it in your own portfolio.</p>
+<h2>Termination clause</h2>
+<p>Define how either party can end the engagement early, and what''s owed for work completed up to that point.</p>
+<p>You don''t need a lawyer to put a contract like this in writing — Invoxaco''s Freelance Contract and Independent Contractor Agreement generators walk through each of these sections so you can have something signed before the first invoice goes out.</p>', 'freelancing,contracts,client relationships', 'published', 'A Freelancer''s Guide to Contracts: What to Include Before You Start Work | Invoxaco Blog', 'A solid freelance contract protects both sides and prevents the misunderstandings that derail otherwise good client relationships.', '2026-02-20 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (3, NULL, 'How to Price Your Freelance Services with Confidence', 'how-to-price-your-freelance-services-with-confidence', 'Underpricing is the most common freelance mistake. Here is a practical framework for setting rates you can actually defend.', '<p>Almost every freelancer underprices their work in the beginning — not because they don''t know their worth, but because they don''t have a framework for putting a number on it. Confidence in pricing comes from process, not guesswork.</p>
+<h2>Start with your real cost of doing business</h2>
+<p>Your rate needs to cover more than just the hours you bill. Software subscriptions, taxes, time spent on proposals and admin, and time off all have to come out of your rate, even though clients only see the invoice total.</p>
+<h2>Price the outcome, not just the hours</h2>
+<p>A logo that takes four hours to design but saves a client from a rebrand mistake is worth more than four hours of your time. Where possible, price project work based on value delivered rather than a flat hourly multiplication.</p>
+<h2>Quote in writing, every time</h2>
+<p>A verbal estimate is easy to forget or dispute later. A written quotation with itemized pricing sets the number in stone and gives the client something concrete to approve before work starts.</p>
+<h2>Build in a buffer for revisions</h2>
+<p>If your pricing assumes everything goes perfectly the first time, you''re setting yourself up to work unpaid hours. Price in a reasonable number of revision rounds up front.</p>
+<h2>Review your rates at least once a year</h2>
+<p>Your skills, demand, and cost of living all change. A rate that felt right two years ago is very likely too low today.</p>
+<p>Invoxaco''s Quotation and Freelance Invoice generators make it easy to put a professional number in front of a client — itemized, calculated, and ready to send the moment you''ve decided what you''re worth.</p>', 'freelancing,pricing,rates', 'published', 'How to Price Your Freelance Services with Confidence | Invoxaco Blog', 'Underpricing is the most common freelance mistake. Here is a practical framework for setting rates you can actually defend.', '2026-03-01 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (4, NULL, 'NDA 101: When and Why You Need a Non-Disclosure Agreement', 'nda-101-when-and-why-you-need-one', 'NDAs are one of the most common legal documents in business — and one of the most misunderstood. Here is a plain-language breakdown.', '<p>A Non-Disclosure Agreement, or NDA, exists for one simple reason: to make sure that when you share something sensitive with another party, they can''t turn around and use it or share it without consequence.</p>
+<h2>When you actually need one</h2>
+<p>NDAs make sense whenever confidential information needs to change hands before a formal deal is in place — discussing a potential partnership, sharing a business plan with an investor, briefing a contractor on proprietary processes, or interviewing a candidate for a sensitive role.</p>
+<h2>What a good NDA actually covers</h2>
+<ul>
+<li><strong>Disclosing and receiving parties</strong> — who is sharing the information, and who is receiving it.</li>
+<li><strong>Purpose of disclosure</strong> — why the information is being shared, which also limits what the receiving party can do with it.</li>
+<li><strong>Definition of confidential information</strong> — specific enough to be enforceable, broad enough to actually cover what matters.</li>
+<li><strong>Term</strong> — how long the confidentiality obligation lasts, which is often years rather than months.</li>
+<li><strong>Governing law</strong> — which jurisdiction''s laws apply if there''s ever a dispute.</li>
+</ul>
+<h2>One-way vs mutual NDAs</h2>
+<p>If only one side is sharing sensitive information, a one-way NDA is enough. If both sides will be exchanging confidential details — common in partnership or acquisition discussions — a mutual NDA protects everyone equally.</p>
+<p>An NDA doesn''t need to be complicated to be effective. Invoxaco''s NDA generator covers the standard clauses above so you can have a signed agreement in place before the first sensitive conversation happens.</p>', 'legal,nda,confidentiality', 'published', 'NDA 101: When and Why You Need a Non-Disclosure Agreement | Invoxaco Blog', 'NDAs are one of the most common legal documents in business — and one of the most misunderstood. Here is a plain-language breakdown.', '2026-03-10 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (4, NULL, '5 Contract Clauses Every Small Business Should Understand', '5-contract-clauses-every-small-business-should-understand', 'You do not need a law degree to negotiate a contract — you just need to know what these five clauses actually mean.', '<p>Most small business owners sign contracts without a lawyer in the room, which makes it worth knowing what a handful of common clauses actually mean before you put your signature on one.</p>
+<h2>1. Scope of work</h2>
+<p>This defines exactly what''s being delivered. Vague scope language is the most common source of disputes later, because both sides can walk away with a different idea of what was promised.</p>
+<h2>2. Payment terms</h2>
+<p>Look for the due date, accepted payment methods, and what happens if payment is late — including whether interest or late fees apply.</p>
+<h2>3. Termination clause</h2>
+<p>This spells out how either party can exit the agreement early, and what''s owed if they do. Contracts without a termination clause can trap you in an arrangement that''s no longer working.</p>
+<h2>4. Liability and indemnification</h2>
+<p>This determines who''s financially responsible if something goes wrong. It''s dense legal language, but the practical question is simple: if this deal goes badly, who pays for the damage?</p>
+<h2>5. Governing law and dispute resolution</h2>
+<p>If there''s ever a disagreement, this clause determines which jurisdiction''s laws apply and how the dispute gets resolved — through courts, arbitration, or mediation.</p>
+<p>You don''t need to memorize legal terminology to use these clauses correctly — you just need a template that already includes them. Invoxaco''s Contract Agreement and Service Agreement generators build each of these sections in by default.</p>', 'legal,contracts,small business', 'published', '5 Contract Clauses Every Small Business Should Understand | Invoxaco Blog', 'You do not need a law degree to negotiate a contract — you just need to know what these five clauses actually mean.', '2026-03-19 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (5, NULL, 'Introducing Invoxaco: Generate Business Documents in Minutes', 'introducing-invoxaco', 'Invoxaco is live — a single place to create, download, and email the documents your business needs, without design skills or legal fees.', '<p>We built Invoxaco around a simple frustration: creating a professional business document shouldn''t take longer than the task it''s documenting.</p>
+<p>Whether you need an invoice to get paid, an NDA before a sensitive conversation, or an offer letter for a new hire, the old options were always the same — hunt down a generic template and reformat it yourself, or pay someone else to do it for you.</p>
+<h2>What Invoxaco does</h2>
+<p>Pick a document type, fill in a short form, and get a polished, print-ready PDF or editable Word document in under a minute. No design work, no legal drafting from scratch, no fighting with margins in a word processor.</p>
+<h2>What''s included at launch</h2>
+<ul>
+<li>A growing library of document generators spanning finance, sales, legal, HR, construction, real estate, freelancing, operations, marketing, and startup documents.</li>
+<li>PDF and DOCX export for every document you create.</li>
+<li>The ability to email any document directly to a client as an attachment.</li>
+<li>A free plan to get started, with Pro and Premium plans for higher volume and watermark-free exports.</li>
+</ul>
+<p>This is just the starting point. We''re actively expanding the document library and adding features based on what our early users ask for — so if there''s a document type you wish existed, let us know.</p>', 'announcement,product launch', 'published', 'Introducing Invoxaco: Generate Business Documents in Minutes | Invoxaco Blog', 'Invoxaco is live — a single place to create, download, and email the documents your business needs, without design skills or legal fees.', '2026-03-28 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (5, NULL, 'New: 110+ Document Templates Now Available on Invoxaco', '110-document-templates-now-available', 'We have expanded the Invoxaco library to over 110 ready-to-use document generators across 10 categories.', '<p>Invoxaco''s document library just grew significantly. We''ve expanded from a handful of core generators to more than 110 ready-to-use templates, spanning ten categories of business documents.</p>
+<h2>What''s new</h2>
+<ul>
+<li><strong>Business & Finance</strong> — credit notes, debit notes, expense reports, profit and loss statements, balance sheets, cash flow statements, and more.</li>
+<li><strong>Sales & Orders</strong> — sales orders, proforma invoices, delivery notes, sales proposals, and return authorizations.</li>
+<li><strong>Legal</strong> — service agreements, partnership agreements, power of attorney, lease agreements, and demand letters.</li>
+<li><strong>HR</strong> — employment contracts, termination letters, promotion letters, and performance review forms.</li>
+<li><strong>Construction</strong> — work orders, change orders, site inspection reports, and bid proposals.</li>
+<li><strong>Real Estate</strong> — rental agreements, property listings, lease renewal notices, and purchase agreements.</li>
+<li><strong>Freelancing</strong> — scope of work documents, retainer agreements, time tracking sheets, and freelance proposals.</li>
+<li><strong>Business Operations</strong> — SOPs, meeting minutes, business plans, and internal audit reports.</li>
+<li><strong>Marketing</strong> — marketing plans, press releases, sponsorship proposals, and case studies.</li>
+<li><strong>Startup</strong> — pitch deck outlines, term sheets, cap tables, and founders agreements.</li>
+</ul>
+<p>Every new generator follows the same principle as our original templates: fill in a short, clearly labeled form and get a professional, ready-to-send document — no formatting work required.</p>
+<p>Browse the full library from the Generators page and let us know what you''d like to see next.</p>', 'announcement,templates,product update', 'published', 'New: 110+ Document Templates Now Available on Invoxaco | Invoxaco Blog', 'We have expanded the Invoxaco library to over 110 ready-to-use document generators across 10 categories.', '2026-04-06 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (6, NULL, 'How to Use Case Studies to Win More Clients', 'how-to-use-case-studies-to-win-more-clients', 'A well-written case study does more selling than any pitch deck. Here is how to structure one that actually converts.', '<p>Prospective clients don''t believe claims — they believe evidence. A case study is the most persuasive piece of marketing most small businesses never get around to writing.</p>
+<h2>Start with the challenge, not your solution</h2>
+<p>Open with the specific problem your client faced, in terms a prospective client would recognize in their own situation. The more relatable the starting point, the more compelling the eventual result.</p>
+<h2>Be specific about the solution</h2>
+<p>Vague descriptions like "we improved their marketing" don''t build credibility. Describe exactly what you did, in enough detail that a reader understands your process, not just your outcome.</p>
+<h2>Lead with measurable results</h2>
+<p>Numbers do the convincing that adjectives can''t. "Increased qualified leads by 40% in three months" is far more persuasive than "significantly improved lead generation."</p>
+<h2>Include a direct quote</h2>
+<p>A short testimonial from the client, in their own words, adds a layer of credibility that your own writing can''t replicate — even a single sentence helps.</p>
+<h2>Make it easy to find and share</h2>
+<p>A case study only works as marketing if prospects actually see it. Link to it from your proposals, your website, and your sales follow-ups.</p>
+<p>Invoxaco''s Case Study generator walks through challenge, solution, results, and testimonial in a structured format — so you can turn a good client outcome into a reusable sales asset in minutes.</p>', 'marketing,case studies,sales', 'published', 'How to Use Case Studies to Win More Clients | Invoxaco Blog', 'A well-written case study does more selling than any pitch deck. Here is how to structure one that actually converts.', '2026-04-15 00:00:00');
+INSERT INTO blog_posts (category_id, author_id, title, slug, excerpt, content, tags, status, meta_title, meta_description, published_at) VALUES (6, NULL, 'A Simple Press Release Template That Actually Gets Noticed', 'simple-press-release-template-that-gets-noticed', 'Most press releases are ignored because they read like internal memos. Here is how to structure one journalists will actually read.', '<p>Journalists and editors skim hundreds of press releases a week, which means yours has roughly one sentence to earn a second look. Structure matters more than most businesses realize.</p>
+<h2>Lead with the news, not the company</h2>
+<p>Your headline and opening line should state what''s newsworthy immediately — a launch, a milestone, a partnership — not a paragraph of company background before getting to the point.</p>
+<h2>Answer the basic questions early</h2>
+<p>Who, what, when, where, and why should all be answerable within the first two short paragraphs. Reporters are deciding whether to keep reading within seconds.</p>
+<h2>Use a real quote, not corporate filler</h2>
+<p>A quote from a founder or executive should sound like something a person actually said, not a marketing slogan dressed up with quotation marks. Specificity beats polish.</p>
+<h2>Include contact information clearly</h2>
+<p>Make it effortless for a journalist to follow up — a name, email, and phone number should be impossible to miss at the bottom of the release.</p>
+<h2>Keep it short</h2>
+<p>A press release is a pitch for a story, not the story itself. If it''s longer than half a page, you''re probably including details that belong in a follow-up conversation instead.</p>
+<p>Invoxaco''s Press Release generator keeps this structure built in — headline, dateline, body, and contact info — so you can get a release out the door the same day the news happens.</p>', 'marketing,press releases,pr', 'published', 'A Simple Press Release Template That Actually Gets Noticed | Invoxaco Blog', 'Most press releases are ignored because they read like internal memos. Here is how to structure one journalists will actually read.', '2026-04-24 00:00:00');
