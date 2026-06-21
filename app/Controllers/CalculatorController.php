@@ -20,7 +20,7 @@ class CalculatorController extends Controller
         }
 
         $this->view('calculators/index', [
-            'metaTitle' => '16+ Free Financial Calculators - Invoxaco',
+            'metaTitle' => '20+ Free Financial Calculators - Invoxaco',
             'metaDescription' => 'Free, real-time financial calculators for pricing, costing, ROI, loans, runway, and more. Download results as PDF.',
             'grouped' => $grouped,
             'jsonLd' => [SeoService::breadcrumbSchema([

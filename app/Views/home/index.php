@@ -17,7 +17,7 @@
             <div class="small opacity-75">Document Templates</div>
           </div>
           <div class="col-4">
-            <div class="fw-bold fs-3">16+</div>
+            <div class="fw-bold fs-3">20+</div>
             <div class="small opacity-75">Financial Calculators</div>
           </div>
           <div class="col-4">

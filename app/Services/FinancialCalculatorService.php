@@ -17,9 +17,13 @@ class FinancialCalculatorService
             'product-pricing' => self::productPricing($input),
             'service-pricing' => self::servicePricing($input),
             'cogs' => self::cogs($input),
+            'manufacturing-cost' => self::manufacturingCost($input),
+            'wholesale-price' => self::wholesalePrice($input),
+            'retail-price' => self::retailPrice($input),
             'discount' => self::discount($input),
             'commission' => self::commission($input),
             'freelancer-rate' => self::freelancerRate($input),
+            'hourly-rate' => self::hourlyRate($input),
             'vat-gst' => self::vatGst($input),
             'invoice-discount' => self::invoiceDiscount($input),
             'startup-runway' => self::startupRunway($input),
@@ -183,6 +187,50 @@ class FinancialCalculatorService
         ];
     }
 
+    private static function manufacturingCost(array $i): array
+    {
+        $total = $i['rawMaterialCost'] + $i['directLaborCost'] + $i['manufacturingOverhead'];
+        $units = max(0.0, $i['unitsManufactured']);
+        $costPerUnit = self::safeDiv($total, $units) ?? 0;
+        $margin = min(99.0, max(0.0, $i['desiredMarginPercent']));
+        $sellingPrice = self::safeDiv($costPerUnit, 1 - $margin / 100) ?? $costPerUnit;
+
+        return [
+            'totalManufacturingCost' => round($total, 2),
+            'costPerUnit' => round($costPerUnit, 2),
+            'suggestedSellingPrice' => round($sellingPrice, 2),
+            'profitPerUnit' => round($sellingPrice - $costPerUnit, 2),
+        ];
+    }
+
+    private static function wholesalePrice(array $i): array
+    {
+        $margin = min(99.0, max(0.0, $i['desiredMarginPercent']));
+        $price = self::safeDiv($i['unitCost'], 1 - $margin / 100) ?? $i['unitCost'];
+        $profitPerUnit = $price - $i['unitCost'];
+        $qty = max(0.0, $i['orderQuantity']);
+
+        return [
+            'wholesalePricePerUnit' => round($price, 2),
+            'profitPerUnit' => round($profitPerUnit, 2),
+            'totalOrderRevenue' => round($price * $qty, 2),
+            'totalOrderProfit' => round($profitPerUnit * $qty, 2),
+        ];
+    }
+
+    private static function retailPrice(array $i): array
+    {
+        $markup = max(0.0, $i['desiredMarkupPercent']);
+        $retail = $i['wholesaleCost'] * (1 + $markup / 100);
+        $tax = $retail * $i['salesTaxPercent'] / 100;
+
+        return [
+            'retailPrice' => round($retail, 2),
+            'profitPerUnit' => round($retail - $i['wholesaleCost'], 2),
+            'priceWithTax' => round($retail + $tax, 2),
+        ];
+    }
+
     private static function discount(array $i): array
     {
         $discountAmount = $i['originalPrice'] * $i['discountPercent'] / 100;
@@ -215,6 +263,21 @@ class FinancialCalculatorService
             'billableHoursPerYear' => round($billableHours, 2),
             'hourlyRate' => round($hourlyRate, 2),
             'dayRate' => round($hourlyRate * 8, 2),
+        ];
+    }
+
+    private static function hourlyRate(array $i): array
+    {
+        $weeksPerMonth = 4.333;
+        $weeklyHours = max(0.0, $i['hoursPerDay']) * max(0.0, $i['daysPerWeek']);
+        $monthlyHours = $weeklyHours * $weeksPerMonth;
+        $hourlyRate = self::safeDiv($i['desiredMonthlyIncome'], $monthlyHours) ?? 0;
+
+        return [
+            'hourlyRate' => round($hourlyRate, 2),
+            'dayRate' => round($hourlyRate * $i['hoursPerDay'], 2),
+            'weeklyHours' => round($weeklyHours, 2),
+            'monthlyHours' => round($monthlyHours, 2),
         ];
     }
 
