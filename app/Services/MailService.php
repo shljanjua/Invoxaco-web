@@ -22,13 +22,13 @@ class MailService
         $smtp = SmtpSetting::active();
         $fallback = require __DIR__ . '/../Config/mail.php';
 
-        $host = $smtp['host'] ?? $fallback['host'];
-        $port = $smtp['port'] ?? $fallback['port'];
-        $encryption = $smtp['encryption'] ?? $fallback['encryption'];
-        $username = $smtp['username'] ?? $fallback['username'];
-        $password = $smtp['password'] ?? $fallback['password'];
-        $fromAddress = $smtp['from_address'] ?? $fallback['from_address'];
-        $fromName = $smtp['from_name'] ?? $fallback['from_name'];
+        $host = $smtp['host'] ?? '' ?: $fallback['host'];
+        $port = $smtp['port'] ?? '' ?: $fallback['port'];
+        $encryption = $smtp['encryption'] ?? '' ?: $fallback['encryption'];
+        $username = $smtp['username'] ?? '' ?: $fallback['username'];
+        $password = $smtp['password'] ?? '' ?: $fallback['password'];
+        $fromAddress = $smtp['from_address'] ?? '' ?: $fallback['from_address'];
+        $fromName = $smtp['from_name'] ?? '' ?: $fallback['from_name'];
 
         $this->mailer->isSMTP();
         $this->mailer->Host = $host;
