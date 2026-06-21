@@ -90,10 +90,23 @@ if (!function_exists('slugify')) {
     }
 }
 
-if (!function_exists('money')) {
-    function money(float $amount): string
+if (!function_exists('currency_symbol')) {
+    function currency_symbol(string $code): string
     {
-        return '$' . number_format($amount, 2);
+        $symbols = [
+            'USD' => '$', 'EUR' => '€', 'GBP' => '£', 'INR' => '₹', 'PKR' => 'Rs ',
+            'AUD' => 'A$', 'CAD' => 'C$', 'AED' => 'AED ', 'SAR' => 'SAR ', 'JPY' => '¥',
+            'CNY' => '¥', 'ZAR' => 'R', 'NGN' => '₦', 'BRL' => 'R$', 'SGD' => 'S$',
+        ];
+
+        return $symbols[strtoupper($code)] ?? strtoupper($code) . ' ';
+    }
+}
+
+if (!function_exists('money')) {
+    function money(float $amount, string $currency = 'USD'): string
+    {
+        return currency_symbol($currency) . number_format($amount, 2);
     }
 }
 

@@ -7,6 +7,70 @@
 /** @var string $formAction */
 $documentData = $documentData ?? [];
 $isEdit = $document !== null;
+
+$termsFieldNames = [
+    'notes', 'condition_notes', 'discussion_notes', 'additional_terms', 'key_terms',
+    'payment_terms', 'termination_terms', 'vesting_terms', 'terms', 'policies', 'policy_details',
+];
+
+$itemsFields = [];
+$termsFields = [];
+$basicFields = [];
+
+foreach ($fields as $field) {
+    if ($field['type'] === 'line_items') {
+        $itemsFields[] = $field;
+    } elseif (in_array($field['name'], $termsFieldNames, true)) {
+        $termsFields[] = $field;
+    } else {
+        $basicFields[] = $field;
+    }
+}
+
+$hasItemsTab = !empty($itemsFields);
+$hasTermsTab = !empty($termsFields);
+
+$accentColor = $document['accent_color'] ?? '#2563eb';
+$templateStyle = $document['template_style'] ?? 'modern';
+$showLogo = $document === null || (bool) $document['show_logo'];
+
+if (!function_exists('render_field')) {
+function render_field(array $field, array $documentData): void {
+    $name = $field['name'];
+    $value = $documentData[$name] ?? '';
+    ?>
+    <div class="mb-3">
+      <?php if ($field['type'] === 'line_items'): ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <div id="lineItems">
+          <?php $items = is_array($value) && !empty($value) ? $value : [['description' => '', 'qty' => 1, 'price' => 0]]; ?>
+          <?php foreach ($items as $item): ?>
+          <div class="row g-2 mb-2 line-item">
+            <div class="col-5"><input type="text" name="items_description[]" class="form-control" placeholder="Description" value="<?= e($item['description'] ?? '') ?>"></div>
+            <div class="col-2"><input type="number" step="0.01" name="items_qty[]" class="form-control" placeholder="Qty" value="<?= e((string) ($item['qty'] ?? 1)) ?>"></div>
+            <div class="col-3"><input type="number" step="0.01" name="items_price[]" class="form-control" placeholder="Price" value="<?= e((string) ($item['price'] ?? 0)) ?>"></div>
+            <div class="col-2"><button type="button" class="btn btn-outline-danger w-100 remove-item"><i class="bi bi-x"></i></button></div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <button type="button" id="addItem" class="btn btn-sm btn-outline-primary mt-1"><i class="bi bi-plus"></i> Add Line</button>
+      <?php elseif ($field['type'] === 'textarea'): ?>
+        <label class="form-label"><?= e($field['label']) ?></label>
+        <textarea name="<?= e($name) ?>" class="form-control" rows="3" <?= $field['required'] ? 'required' : '' ?>><?= e(is_array($value) ? '' : (string) $value) ?></textarea>
+      <?php elseif ($field['type'] === 'date'): ?>
+        <label class="form-label"><?= e($field['label']) ?></label>
+        <input type="date" name="<?= e($name) ?>" class="form-control" value="<?= e((string) $value) ?>" <?= $field['required'] ? 'required' : '' ?>>
+      <?php elseif ($field['type'] === 'number'): ?>
+        <label class="form-label"><?= e($field['label']) ?></label>
+        <input type="number" step="0.01" name="<?= e($name) ?>" class="form-control" value="<?= e((string) $value) ?>" <?= $field['required'] ? 'required' : '' ?>>
+      <?php else: ?>
+        <label class="form-label"><?= e($field['label']) ?></label>
+        <input type="text" name="<?= e($name) ?>" class="form-control" value="<?= e((string) $value) ?>" <?= $field['required'] ? 'required' : '' ?>>
+      <?php endif; ?>
+    </div>
+    <?php
+}
+}
 ?>
 <div class="container py-4" style="max-width:900px;">
   <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
@@ -53,39 +117,61 @@ $isEdit = $document !== null;
     </div>
 
     <div class="card border-0 shadow-sm rounded-4 mb-3">
+      <div class="card-header bg-white border-0 pt-3 pb-0">
+        <ul class="nav nav-tabs card-header-tabs" id="generatorTabs">
+          <li class="nav-item"><button type="button" class="nav-link active" data-tab="basic">Basic</button></li>
+          <?php if ($hasItemsTab): ?>
+          <li class="nav-item"><button type="button" class="nav-link" data-tab="items">Items</button></li>
+          <?php endif; ?>
+          <li class="nav-item"><button type="button" class="nav-link" data-tab="design">Design</button></li>
+          <?php if ($hasTermsTab): ?>
+          <li class="nav-item"><button type="button" class="nav-link" data-tab="terms">Terms</button></li>
+          <?php endif; ?>
+        </ul>
+      </div>
       <div class="card-body">
-        <?php foreach ($fields as $field): ?>
-          <?php $name = $field['name']; $value = $documentData[$name] ?? ''; ?>
-          <div class="mb-3">
-            <?php if ($field['type'] === 'line_items'): ?>
-              <label class="form-label fw-bold"><?= e($field['label']) ?></label>
-              <div id="lineItems">
-                <?php $items = is_array($value) && !empty($value) ? $value : [['description' => '', 'qty' => 1, 'price' => 0]]; ?>
-                <?php foreach ($items as $item): ?>
-                <div class="row g-2 mb-2 line-item">
-                  <div class="col-5"><input type="text" name="items_description[]" class="form-control" placeholder="Description" value="<?= e($item['description'] ?? '') ?>"></div>
-                  <div class="col-2"><input type="number" step="0.01" name="items_qty[]" class="form-control" placeholder="Qty" value="<?= e((string) ($item['qty'] ?? 1)) ?>"></div>
-                  <div class="col-3"><input type="number" step="0.01" name="items_price[]" class="form-control" placeholder="Price" value="<?= e((string) ($item['price'] ?? 0)) ?>"></div>
-                  <div class="col-2"><button type="button" class="btn btn-outline-danger w-100 remove-item"><i class="bi bi-x"></i></button></div>
-                </div>
-                <?php endforeach; ?>
+        <div class="tab-pane" data-pane="basic">
+          <?php foreach ($basicFields as $field): render_field($field, $documentData); endforeach; ?>
+        </div>
+
+        <?php if ($hasItemsTab): ?>
+        <div class="tab-pane d-none" data-pane="items">
+          <?php foreach ($itemsFields as $field): render_field($field, $documentData); endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <div class="tab-pane d-none" data-pane="design">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Accent Color</label>
+              <input type="color" name="accent_color" class="form-control form-control-color w-100" value="<?= e($accentColor) ?>">
+              <div class="form-text">Used for headings and totals in the PDF.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Template Style</label>
+              <select name="template_style" class="form-select">
+                <option value="modern" <?= $templateStyle === 'modern' ? 'selected' : '' ?>>Modern</option>
+                <option value="classic" <?= $templateStyle === 'classic' ? 'selected' : '' ?>>Classic</option>
+                <option value="minimal" <?= $templateStyle === 'minimal' ? 'selected' : '' ?>>Minimal</option>
+                <option value="bold" <?= $templateStyle === 'bold' ? 'selected' : '' ?>>Bold</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label d-block">Logo</label>
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="show_logo" id="showLogoSwitch" <?= $showLogo ? 'checked' : '' ?>>
+                <label class="form-check-label" for="showLogoSwitch">Show company logo on this document</label>
               </div>
-              <button type="button" id="addItem" class="btn btn-sm btn-outline-primary mt-1"><i class="bi bi-plus"></i> Add Line</button>
-            <?php elseif ($field['type'] === 'textarea'): ?>
-              <label class="form-label"><?= e($field['label']) ?></label>
-              <textarea name="<?= e($name) ?>" class="form-control" rows="3" <?= $field['required'] ? 'required' : '' ?>><?= e(is_array($value) ? '' : (string) $value) ?></textarea>
-            <?php elseif ($field['type'] === 'date'): ?>
-              <label class="form-label"><?= e($field['label']) ?></label>
-              <input type="date" name="<?= e($name) ?>" class="form-control" value="<?= e((string) $value) ?>" <?= $field['required'] ? 'required' : '' ?>>
-            <?php elseif ($field['type'] === 'number'): ?>
-              <label class="form-label"><?= e($field['label']) ?></label>
-              <input type="number" step="0.01" name="<?= e($name) ?>" class="form-control" value="<?= e((string) $value) ?>" <?= $field['required'] ? 'required' : '' ?>>
-            <?php else: ?>
-              <label class="form-label"><?= e($field['label']) ?></label>
-              <input type="text" name="<?= e($name) ?>" class="form-control" value="<?= e((string) $value) ?>" <?= $field['required'] ? 'required' : '' ?>>
-            <?php endif; ?>
+              <div class="form-text">Manage your logo in <a href="<?= url('settings') ?>">Company Settings</a>.</div>
+            </div>
           </div>
-        <?php endforeach; ?>
+        </div>
+
+        <?php if ($hasTermsTab): ?>
+        <div class="tab-pane d-none" data-pane="terms">
+          <?php foreach ($termsFields as $field): render_field($field, $documentData); endforeach; ?>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
 
@@ -117,6 +203,15 @@ $isEdit = $document !== null;
 <?php endif; ?>
 
 <script>
+document.querySelectorAll('#generatorTabs .nav-link').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('#generatorTabs .nav-link').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('d-none'));
+    btn.classList.add('active');
+    document.querySelector('.tab-pane[data-pane="' + btn.dataset.tab + '"]').classList.remove('d-none');
+  });
+});
+
 document.getElementById('addItem')?.addEventListener('click', function () {
   const container = document.getElementById('lineItems');
   const row = container.querySelector('.line-item').cloneNode(true);

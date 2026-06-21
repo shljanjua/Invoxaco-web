@@ -16,6 +16,23 @@
       <div class="d-flex gap-2">
         <?php if ($user): ?>
           <a href="<?= url($user['role'] === 'admin' ? 'admin/dashboard' : 'dashboard') ?>" class="btn btn-outline-primary">Dashboard</a>
+          <div class="dropdown">
+            <button class="btn btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle me-1"></i><?= e(explode(' ', $user['name'])[0]) ?>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <?php if ($user['role'] !== 'admin'): ?>
+              <li><a class="dropdown-item" href="<?= url('settings') ?>"><i class="bi bi-gear me-2"></i>Settings</a></li>
+              <?php endif; ?>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="POST" action="<?= url('logout') ?>" class="px-3">
+                  <?= csrf_field() ?>
+                  <button class="dropdown-item p-0 text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                </form>
+              </li>
+            </ul>
+          </div>
         <?php else: ?>
           <a href="<?= url('login') ?>" class="btn btn-outline-primary">Log In</a>
           <a href="<?= url('register') ?>" class="btn btn-primary">Sign Up Free</a>

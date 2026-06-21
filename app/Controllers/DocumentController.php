@@ -85,6 +85,9 @@ class DocumentController extends Controller
             'data' => json_encode($data),
             'status' => Request::string('status') === 'final' ? 'final' : 'draft',
             'watermarked' => PlanLimiter::shouldWatermark($user) ? 1 : 0,
+            'accent_color' => $this->collectAccentColor(),
+            'template_style' => $this->collectTemplateStyle(),
+            'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
         ]);
 
         $this->flashAndRedirect('success', 'Document saved.', url('documents/' . $documentId . '/edit'));
@@ -132,6 +135,9 @@ class DocumentController extends Controller
             'title' => Request::string('title') ?: $document['title'],
             'data' => json_encode($data),
             'status' => Request::string('status') === 'final' ? 'final' : 'draft',
+            'accent_color' => $this->collectAccentColor(),
+            'template_style' => $this->collectTemplateStyle(),
+            'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
         ]);
 
         $this->flashAndRedirect('success', 'Document updated.', url('documents/' . $id . '/edit'));
@@ -150,7 +156,13 @@ class DocumentController extends Controller
         $fields = DocumentTemplate::decodeFields($template);
         $data = GeneratorEngine::collectFromRequest($fields);
 
-        Document::update($id, ['data' => json_encode($data), 'title' => Request::string('title') ?: $document['title']]);
+        Document::update($id, [
+            'data' => json_encode($data),
+            'title' => Request::string('title') ?: $document['title'],
+            'accent_color' => $this->collectAccentColor(),
+            'template_style' => $this->collectTemplateStyle(),
+            'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
+        ]);
 
         $this->json(['ok' => true, 'saved_at' => date('H:i:s')]);
     }
@@ -178,6 +190,9 @@ class DocumentController extends Controller
             'data' => $document['data'],
             'status' => 'draft',
             'watermarked' => PlanLimiter::shouldWatermark($user) ? 1 : 0,
+            'accent_color' => $document['accent_color'],
+            'template_style' => $document['template_style'],
+            'show_logo' => $document['show_logo'],
         ]);
 
         $this->flashAndRedirect('success', 'Document duplicated.', url('documents/' . $newId . '/edit'));
@@ -372,9 +387,23 @@ class DocumentController extends Controller
             'document' => $document,
             'user' => $user,
             'client' => $client,
-            'watermark' => (bool) $document['watermarked'],
+            'watermark' => PlanLimiter::shouldWatermark($user),
             'forBrowser' => $forBrowser,
         ], '');
+    }
+
+    private function collectAccentColor(): string
+    {
+        $color = Request::string('accent_color');
+
+        return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : '#2563eb';
+    }
+
+    private function collectTemplateStyle(): string
+    {
+        $style = Request::string('template_style');
+
+        return in_array($style, ['modern', 'classic', 'minimal', 'bold'], true) ? $style : 'modern';
     }
 
     private function pdfFilename(array $document): string

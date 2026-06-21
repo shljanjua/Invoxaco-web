@@ -4,6 +4,7 @@ use App\Controllers\AuthController;
 use App\Controllers\BillingController;
 use App\Controllers\BlogController;
 use App\Controllers\ClientController;
+use App\Controllers\CompanyProfileController;
 use App\Controllers\ContactController;
 use App\Controllers\DashboardController;
 use App\Controllers\DocumentController;
@@ -47,6 +48,12 @@ $router->post('/verify-email/resend', [AuthController::class, 'resendVerificatio
 
 // Dashboard
 $router->get('/dashboard', [DashboardController::class, 'index'], [AuthMiddleware::class]);
+
+// Company Settings
+$router->group([AuthMiddleware::class], function ($router) {
+    $router->get('/settings', [CompanyProfileController::class, 'index']);
+    $router->post('/settings', [CompanyProfileController::class, 'update']);
+});
 
 // Billing
 $router->group([AuthMiddleware::class], function ($router) {
