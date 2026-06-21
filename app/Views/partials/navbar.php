@@ -1,5 +1,5 @@
 <?php $user = auth_user(); ?>
-<nav class="navbar navbar-expand-lg navbar-light sticky-top border-bottom shadow-sm py-2" id="mainNavbar">
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top border-bottom shadow-sm py-2" id="mainNavbar">
   <div class="container">
     <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" href="<?= url() ?>" id="navbarBrand">
       <img src="<?= asset('img/logo.png') ?>" alt="Invoxaco" height="34">
@@ -8,7 +8,7 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="mainNav">
+    <div class="collapse navbar-collapse bg-white" id="mainNav">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
         <li class="nav-item"><a class="nav-link" href="<?= url('generators') ?>">Generators</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('calculators') ?>">Calculators</a></li>

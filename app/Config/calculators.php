@@ -153,6 +153,58 @@ return [
             ['key' => 'cogs', 'label' => 'Cost of Goods Sold', 'format' => 'currency'],
         ],
     ],
+    'manufacturing-cost' => [
+        'name' => 'Manufacturing Cost Calculator',
+        'category' => 'Pricing & Costing',
+        'icon' => 'bi-gear-wide-connected',
+        'description' => 'Calculate total manufacturing cost, cost per unit, and a suggested selling price from materials, labor, and overhead.',
+        'fields' => [
+            ['name' => 'rawMaterialCost', 'label' => 'Raw Material Cost', 'default' => 5000],
+            ['name' => 'directLaborCost', 'label' => 'Direct Labor Cost', 'default' => 3000],
+            ['name' => 'manufacturingOverhead', 'label' => 'Manufacturing Overhead', 'default' => 2000],
+            ['name' => 'unitsManufactured', 'label' => 'Units Manufactured', 'default' => 500, 'min' => 1],
+            ['name' => 'desiredMarginPercent', 'label' => 'Desired Margin (%)', 'default' => 25, 'max' => 99],
+        ],
+        'results' => [
+            ['key' => 'totalManufacturingCost', 'label' => 'Total Manufacturing Cost', 'format' => 'currency'],
+            ['key' => 'costPerUnit', 'label' => 'Cost Per Unit', 'format' => 'currency'],
+            ['key' => 'suggestedSellingPrice', 'label' => 'Suggested Selling Price', 'format' => 'currency'],
+            ['key' => 'profitPerUnit', 'label' => 'Profit Per Unit', 'format' => 'currency'],
+        ],
+    ],
+    'wholesale-price' => [
+        'name' => 'Wholesale Price Calculator',
+        'category' => 'Pricing & Costing',
+        'icon' => 'bi-box2',
+        'description' => 'Work out your wholesale price per unit and total order profit from unit cost, margin, and order quantity.',
+        'fields' => [
+            ['name' => 'unitCost', 'label' => 'Unit Cost', 'default' => 10],
+            ['name' => 'desiredMarginPercent', 'label' => 'Desired Margin (%)', 'default' => 35, 'max' => 99],
+            ['name' => 'orderQuantity', 'label' => 'Order Quantity', 'default' => 100, 'min' => 1],
+        ],
+        'results' => [
+            ['key' => 'wholesalePricePerUnit', 'label' => 'Wholesale Price / Unit', 'format' => 'currency'],
+            ['key' => 'profitPerUnit', 'label' => 'Profit Per Unit', 'format' => 'currency'],
+            ['key' => 'totalOrderRevenue', 'label' => 'Total Order Revenue', 'format' => 'currency'],
+            ['key' => 'totalOrderProfit', 'label' => 'Total Order Profit', 'format' => 'currency'],
+        ],
+    ],
+    'retail-price' => [
+        'name' => 'Retail Price Calculator',
+        'category' => 'Pricing & Costing',
+        'icon' => 'bi-shop',
+        'description' => 'Calculate your retail selling price, profit, and price with sales tax from wholesale cost and markup.',
+        'fields' => [
+            ['name' => 'wholesaleCost', 'label' => 'Wholesale Cost', 'default' => 20],
+            ['name' => 'desiredMarkupPercent', 'label' => 'Desired Markup (%)', 'default' => 50],
+            ['name' => 'salesTaxPercent', 'label' => 'Sales Tax (%)', 'default' => 8],
+        ],
+        'results' => [
+            ['key' => 'retailPrice', 'label' => 'Retail Price', 'format' => 'currency'],
+            ['key' => 'profitPerUnit', 'label' => 'Profit Per Unit', 'format' => 'currency'],
+            ['key' => 'priceWithTax', 'label' => 'Price With Sales Tax', 'format' => 'currency'],
+        ],
+    ],
     'discount' => [
         'name' => 'Discount Calculator',
         'category' => 'Sales & Invoicing',
@@ -197,6 +249,23 @@ return [
             ['key' => 'billableHoursPerYear', 'label' => 'Billable Hours / Year', 'format' => 'number'],
             ['key' => 'hourlyRate', 'label' => 'Hourly Rate', 'format' => 'currency'],
             ['key' => 'dayRate', 'label' => 'Day Rate (8h)', 'format' => 'currency'],
+        ],
+    ],
+    'hourly-rate' => [
+        'name' => 'Hourly Rate Calculator',
+        'category' => 'Sales & Invoicing',
+        'icon' => 'bi-clock-history',
+        'description' => 'Convert a target monthly income into the hourly and day rate you need to charge based on your working schedule.',
+        'fields' => [
+            ['name' => 'desiredMonthlyIncome', 'label' => 'Desired Monthly Income', 'default' => 5000],
+            ['name' => 'hoursPerDay', 'label' => 'Hours Per Day', 'default' => 8, 'min' => 1],
+            ['name' => 'daysPerWeek', 'label' => 'Working Days Per Week', 'default' => 5, 'min' => 1, 'max' => 7],
+        ],
+        'results' => [
+            ['key' => 'hourlyRate', 'label' => 'Hourly Rate', 'format' => 'currency'],
+            ['key' => 'dayRate', 'label' => 'Day Rate', 'format' => 'currency'],
+            ['key' => 'weeklyHours', 'label' => 'Hours Per Week', 'format' => 'number'],
+            ['key' => 'monthlyHours', 'label' => 'Hours Per Month', 'format' => 'number'],
         ],
     ],
     'vat-gst' => [
