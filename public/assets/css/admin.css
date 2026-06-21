@@ -1,0 +1,29 @@
+:root {
+  --invox-primary: #4338ca;
+}
+
+body {
+  background-color: #f4f5f9;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--invox-primary);
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.btn-primary {
+  background-color: var(--invox-primary);
+  border-color: var(--invox-primary);
+}
+
+.btn-primary:hover {
+  background-color: #3730a3;
+  border-color: #3730a3;
+}
+
+.card {
+  background-color: #fff;
+}
