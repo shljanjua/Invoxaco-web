@@ -58,6 +58,7 @@ if ($style === 'corporate') {
 }
 
 $displayTitle = doc_title($template['name']);
+$showLegalDisclaimer = \App\Services\GeneratorEngine::isLegalAgreement($template, $fields);
 
 $senderName = trim((string) ($user['company_name'] ?? ''));
 
@@ -259,16 +260,17 @@ function invoxaco_doc_asset(string $relative, bool $forBrowser): string
 </table>
 <?php endif; ?>
 
-<?php if (!empty($data['from_name']) || !empty($data['to_name'])): ?>
+<?php $fromIsParty = in_array('from_name', $structuredFieldNames, true); $toIsParty = in_array('to_name', $structuredFieldNames, true); ?>
+<?php if ((!$fromIsParty && !empty($data['from_name'])) || (!$toIsParty && !empty($data['to_name']))): ?>
 <table style="width:100%; margin-bottom:24px;">
 <tr>
-<?php if (!empty($data['from_name'])): ?>
+<?php if (!$fromIsParty && !empty($data['from_name'])): ?>
 <td style="vertical-align:top; width:50%;">
 <div style="font-size:11px; color:#9ca3af; text-transform:uppercase; margin-bottom:4px;">From</div>
 <div style="font-size:13px; white-space:pre-line;"><?= e($data['from_name']) ?></div>
 </td>
 <?php endif; ?>
-<?php if (!empty($data['to_name'])): ?>
+<?php if (!$toIsParty && !empty($data['to_name'])): ?>
 <td style="vertical-align:top; width:50%;">
 <div style="font-size:11px; color:#9ca3af; text-transform:uppercase; margin-bottom:4px;">To</div>
 <div style="font-size:13px; white-space:pre-line;"><?= e($data['to_name']) ?></div>
@@ -456,6 +458,12 @@ $bankBits = array_filter([
 <div style="margin-top:40px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:11px; color:#6b7280;">
 <?php if (!empty($footerBits)): ?><div><?= e(implode(' &middot; ', $footerBits)) ?></div><?php endif; ?>
 <?php if (!empty($bankBits)): ?><div style="margin-top:4px;">Payment Details: <?= e(implode(' &middot; ', $bankBits)) ?></div><?php endif; ?>
+</div>
+<?php endif; ?>
+
+<?php if ($showLegalDisclaimer): ?>
+<div style="margin-top:24px; padding:12px 14px; background:#fffbeb; border:1px solid #fde68a; border-radius:4px; font-size:10px; color:#92400e; text-align:center;">
+This document is generated automatically and may not constitute legal advice. Users should consult a qualified attorney before relying on this document.
 </div>
 <?php endif; ?>
 

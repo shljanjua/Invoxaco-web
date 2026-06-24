@@ -247,7 +247,7 @@ class DocumentController extends Controller
         $data = json_decode($document['data'], true) ?: [];
         $logoPath = $user['company_logo'] ? __DIR__ . '/../../public/uploads/logos/' . $user['company_logo'] : null;
 
-        $contents = DocxService::fromDocument($document['title'], $fields, $data, $logoPath);
+        $contents = DocxService::fromDocument($document['title'], $fields, $data, $logoPath, GeneratorEngine::isLegalAgreement($template, $fields));
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         header('Content-Disposition: attachment; filename="' . $this->slugFilename($document['title']) . '.docx"');
@@ -300,7 +300,7 @@ class DocumentController extends Controller
             $mime = 'application/pdf';
         } else {
             $logoPath = $user['company_logo'] ? __DIR__ . '/../../public/uploads/logos/' . $user['company_logo'] : null;
-            $content = base64_encode(DocxService::fromDocument($document['title'], $fields, $data, $logoPath));
+            $content = base64_encode(DocxService::fromDocument($document['title'], $fields, $data, $logoPath, GeneratorEngine::isLegalAgreement($template, $fields)));
             $filename = $this->slugFilename($document['title']) . '.docx';
             $mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
         }
