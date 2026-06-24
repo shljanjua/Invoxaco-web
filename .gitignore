@@ -13,9 +13,11 @@ storage/sessions/*
 public/uploads/blog/*
 public/uploads/logos/*
 public/uploads/signatures/*
+public/uploads/stamps/*
 !public/uploads/blog/.gitkeep
 !public/uploads/logos/.gitkeep
 !public/uploads/signatures/.gitkeep
+!public/uploads/stamps/.gitkeep
 
 # Dompdf runtime font metric cache (regenerated on first use)
 vendor/dompdf/dompdf/lib/fonts/*.afm.json

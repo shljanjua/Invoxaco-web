@@ -13,16 +13,16 @@ $currencies = ['USD', 'EUR', 'GBP', 'INR', 'PKR', 'AUD', 'CAD', 'AED', 'SAR', 'J
       <div class="card-body p-4">
         <h5 class="fw-bold mb-3">Branding</h5>
         <div class="row g-3 align-items-center">
-          <div class="col-md-4 text-center">
+          <div class="col-md-3 text-center">
             <?php if ($user['company_logo']): ?>
               <img src="<?= url('uploads/logos/' . e($user['company_logo'])) ?>" alt="Company logo" class="img-fluid mb-2" style="max-height:80px;">
             <?php else: ?>
               <div class="border rounded-3 d-flex align-items-center justify-content-center mb-2" style="height:80px; background:#f8f9fa;"><i class="bi bi-image text-secondary fs-3"></i></div>
             <?php endif; ?>
             <input type="file" name="company_logo" accept="image/png,image/jpeg,image/webp" class="form-control form-control-sm">
-            <div class="form-text">PNG, JPG, WEBP &middot; max 2MB</div>
+            <div class="form-text">Logo &middot; PNG, JPG, WEBP &middot; max 2MB</div>
           </div>
-          <div class="col-md-4 text-center">
+          <div class="col-md-3 text-center">
             <?php if ($user['signature_path']): ?>
               <img src="<?= url('uploads/signatures/' . e($user['signature_path'])) ?>" alt="Signature" class="img-fluid mb-2" style="max-height:80px;">
             <?php else: ?>
@@ -31,7 +31,16 @@ $currencies = ['USD', 'EUR', 'GBP', 'INR', 'PKR', 'AUD', 'CAD', 'AED', 'SAR', 'J
             <input type="file" name="signature" accept="image/png,image/jpeg,image/webp" class="form-control form-control-sm">
             <div class="form-text">Authorized signature image</div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3 text-center">
+            <?php if ($user['company_stamp_path'] ?? null): ?>
+              <img src="<?= url('uploads/stamps/' . e($user['company_stamp_path'])) ?>" alt="Company stamp" class="img-fluid mb-2" style="max-height:80px;">
+            <?php else: ?>
+              <div class="border rounded-3 d-flex align-items-center justify-content-center mb-2" style="height:80px; background:#f8f9fa;"><i class="bi bi-patch-check text-secondary fs-3"></i></div>
+            <?php endif; ?>
+            <input type="file" name="company_stamp" accept="image/png,image/jpeg,image/webp" class="form-control form-control-sm">
+            <div class="form-text">Company stamp / seal image</div>
+          </div>
+          <div class="col-md-3">
             <label class="form-label">Default Currency</label>
             <select name="currency" class="form-select">
               <?php foreach ($currencies as $code): ?>
@@ -52,6 +61,10 @@ $currencies = ['USD', 'EUR', 'GBP', 'INR', 'PKR', 'AUD', 'CAD', 'AED', 'SAR', 'J
             <input type="text" name="company_name" class="form-control" value="<?= e($user['company_name'] ?? '') ?>">
           </div>
           <div class="col-md-6">
+            <label class="form-label">Business Registration Number</label>
+            <input type="text" name="business_registration_number" class="form-control" value="<?= e($user['business_registration_number'] ?? '') ?>">
+          </div>
+          <div class="col-md-6">
             <label class="form-label">Phone</label>
             <input type="text" name="phone" class="form-control" value="<?= e($user['phone'] ?? '') ?>">
           </div>
@@ -67,6 +80,18 @@ $currencies = ['USD', 'EUR', 'GBP', 'INR', 'PKR', 'AUD', 'CAD', 'AED', 'SAR', 'J
             <label class="form-label">Address</label>
             <textarea name="address" rows="2" class="form-control"><?= e($user['address'] ?? '') ?></textarea>
           </div>
+          <div class="col-md-4">
+            <label class="form-label">City</label>
+            <input type="text" name="city" class="form-control" value="<?= e($user['city'] ?? '') ?>">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">State / Province</label>
+            <input type="text" name="state" class="form-control" value="<?= e($user['state'] ?? '') ?>">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Country</label>
+            <input type="text" name="country" class="form-control" value="<?= e($user['country'] ?? '') ?>">
+          </div>
         </div>
       </div>
     </div>
@@ -80,8 +105,20 @@ $currencies = ['USD', 'EUR', 'GBP', 'INR', 'PKR', 'AUD', 'CAD', 'AED', 'SAR', 'J
             <input type="text" name="bank_name" class="form-control" value="<?= e($user['bank_name'] ?? '') ?>">
           </div>
           <div class="col-md-6">
+            <label class="form-label">Account Title</label>
+            <input type="text" name="bank_account_title" class="form-control" value="<?= e($user['bank_account_title'] ?? '') ?>">
+          </div>
+          <div class="col-md-4">
             <label class="form-label">Account Number / IBAN</label>
             <input type="text" name="bank_account_no" class="form-control" value="<?= e($user['bank_account_no'] ?? '') ?>">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">SWIFT / BIC Code</label>
+            <input type="text" name="bank_swift_code" class="form-control" value="<?= e($user['bank_swift_code'] ?? '') ?>">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Branch</label>
+            <input type="text" name="bank_branch" class="form-control" value="<?= e($user['bank_branch'] ?? '') ?>">
           </div>
         </div>
         <p class="text-secondary small mb-0 mt-2">Shown on invoices and receipts so clients know where to pay you.</p>

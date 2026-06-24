@@ -13,6 +13,7 @@ class PdfService
         $options->set('isHtml5ParserEnabled', true);
         $options->set('isRemoteEnabled', true);
         $options->set('defaultPaperSize', 'A4');
+        $options->setChroot(array_merge($options->getChroot(), [realpath(__DIR__ . '/../../public')]));
 
         $dompdf = new Dompdf($options);
         $dompdf->setPaper('A4', 'portrait');
