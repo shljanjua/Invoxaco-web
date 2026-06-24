@@ -26,12 +26,19 @@ class CompanyProfileController extends Controller
 
         $data = [
             'company_name' => Request::string('company_name') ?: null,
+            'business_registration_number' => Request::string('business_registration_number') ?: null,
             'phone' => Request::string('phone') ?: null,
             'address' => Request::string('address') ?: null,
+            'city' => Request::string('city') ?: null,
+            'state' => Request::string('state') ?: null,
+            'country' => Request::string('country') ?: null,
             'tax_number' => Request::string('tax_number') ?: null,
             'currency' => Request::string('currency') ?: 'USD',
             'bank_name' => Request::string('bank_name') ?: null,
+            'bank_account_title' => Request::string('bank_account_title') ?: null,
             'bank_account_no' => Request::string('bank_account_no') ?: null,
+            'bank_swift_code' => Request::string('bank_swift_code') ?: null,
+            'bank_branch' => Request::string('bank_branch') ?: null,
             'website' => Request::string('website') ?: null,
         ];
 
@@ -53,6 +60,18 @@ class CompanyProfileController extends Controller
                 if ($filename) {
                     FileUploader::delete('signatures', $user['signature_path']);
                     $data['signature_path'] = $filename;
+                }
+            } catch (\RuntimeException $e) {
+                $this->flashAndRedirect('error', $e->getMessage(), url('settings'));
+            }
+        }
+
+        if ($stamp = Request::file('company_stamp')) {
+            try {
+                $filename = FileUploader::storeImage($stamp, 'stamps');
+                if ($filename) {
+                    FileUploader::delete('stamps', $user['company_stamp_path']);
+                    $data['company_stamp_path'] = $filename;
                 }
             } catch (\RuntimeException $e) {
                 $this->flashAndRedirect('error', $e->getMessage(), url('settings'));

@@ -11,15 +11,23 @@ $isEdit = $document !== null;
 $termsFieldNames = [
     'notes', 'condition_notes', 'discussion_notes', 'additional_terms', 'key_terms',
     'payment_terms', 'termination_terms', 'vesting_terms', 'terms', 'policies', 'policy_details',
+    'special_clauses', 'maintenance_terms', 'house_rules', 'terms_conditions', 'validity_terms',
+    'cancellation_policy', 'renewal_terms',
 ];
 
 $itemsFields = [];
+$partyFields = [];
+$signatureFields = [];
 $termsFields = [];
 $basicFields = [];
 
 foreach ($fields as $field) {
-    if ($field['type'] === 'line_items') {
+    if ($field['type'] === 'line_items' || $field['type'] === 'group_list') {
         $itemsFields[] = $field;
+    } elseif ($field['type'] === 'party') {
+        $partyFields[] = $field;
+    } elseif ($field['type'] === 'signature') {
+        $signatureFields[] = $field;
     } elseif (in_array($field['name'], $termsFieldNames, true)) {
         $termsFields[] = $field;
     } else {
@@ -28,11 +36,13 @@ foreach ($fields as $field) {
 }
 
 $hasItemsTab = !empty($itemsFields);
+$hasPartiesTab = !empty($partyFields) || !empty($signatureFields);
 $hasTermsTab = !empty($termsFields);
 
 $accentColor = $document['accent_color'] ?? '#2563eb';
 $templateStyle = $document['template_style'] ?? 'modern';
 $showLogo = $document === null || (bool) $document['show_logo'];
+$showStamp = $document !== null && (bool) $document['show_stamp'];
 
 if (!function_exists('render_field')) {
 function render_field(array $field, array $documentData): void {
@@ -41,15 +51,31 @@ function render_field(array $field, array $documentData): void {
     ?>
     <div class="mb-3">
       <?php if ($field['type'] === 'line_items'): ?>
+        <?php
+        $hasUnit = !empty($field['has_unit']);
+        $hasItemDiscount = !empty($field['per_item_discount']);
+        $hasItemTax = !empty($field['per_item_tax']);
+        ?>
         <label class="form-label fw-bold"><?= e($field['label']) ?></label>
         <div class="repeater-rows" data-repeater="<?= e($name) ?>">
-          <?php $items = is_array($value) && !empty($value) ? $value : [['description' => '', 'qty' => 1, 'price' => 0]]; ?>
+          <?php $items = is_array($value) && !empty($value) ? $value : [['description' => '', 'unit' => '', 'qty' => 1, 'price' => 0, 'discount_percent' => 0, 'tax_percent' => 0]]; ?>
           <?php foreach ($items as $item): ?>
           <div class="row g-2 mb-2 repeater-row">
-            <div class="col-5"><input type="text" name="<?= e($name) ?>_description[]" class="form-control" placeholder="Description" value="<?= e($item['description'] ?? '') ?>"></div>
+            <div class="col">
+              <input type="text" name="<?= e($name) ?>_description[]" class="form-control" placeholder="Description" value="<?= e($item['description'] ?? '') ?>">
+            </div>
+            <?php if ($hasUnit): ?>
+            <div class="col-2"><input type="text" name="<?= e($name) ?>_unit[]" class="form-control" placeholder="Unit" value="<?= e($item['unit'] ?? '') ?>"></div>
+            <?php endif; ?>
             <div class="col-2"><input type="number" step="0.01" name="<?= e($name) ?>_qty[]" class="form-control" placeholder="Qty" value="<?= e((string) ($item['qty'] ?? 1)) ?>"></div>
-            <div class="col-3"><input type="number" step="0.01" name="<?= e($name) ?>_price[]" class="form-control" placeholder="Price" value="<?= e((string) ($item['price'] ?? 0)) ?>"></div>
-            <div class="col-2"><button type="button" class="btn btn-outline-danger w-100 remove-row"><i class="bi bi-x"></i></button></div>
+            <div class="col-2"><input type="number" step="0.01" name="<?= e($name) ?>_price[]" class="form-control" placeholder="Price" value="<?= e((string) ($item['price'] ?? 0)) ?>"></div>
+            <?php if ($hasItemDiscount): ?>
+            <div class="col-2"><input type="number" step="0.01" name="<?= e($name) ?>_discount_percent[]" class="form-control" placeholder="Disc %" value="<?= e((string) ($item['discount_percent'] ?? 0)) ?>"></div>
+            <?php endif; ?>
+            <?php if ($hasItemTax): ?>
+            <div class="col-2"><input type="number" step="0.01" name="<?= e($name) ?>_tax_percent[]" class="form-control" placeholder="Tax %" value="<?= e((string) ($item['tax_percent'] ?? 0)) ?>"></div>
+            <?php endif; ?>
+            <div class="col-1"><button type="button" class="btn btn-outline-danger w-100 remove-row"><i class="bi bi-x"></i></button></div>
           </div>
           <?php endforeach; ?>
         </div>
@@ -63,9 +89,17 @@ function render_field(array $field, array $documentData): void {
           <?php foreach ($rows as $row): ?>
           <div class="row g-2 mb-2 repeater-row border rounded-3 p-2">
             <?php foreach ($columns as $col): ?>
-              <div class="col-md<?= ($col['type'] ?? 'text') === 'textarea' ? '-12' : '' ?>">
-                <?php if (($col['type'] ?? 'text') === 'textarea'): ?>
+              <?php $colType = $col['type'] ?? 'text'; ?>
+              <div class="col-md<?= $colType === 'textarea' ? '-12' : '' ?>">
+                <?php if ($colType === 'textarea'): ?>
                   <textarea name="<?= e($name) ?>_<?= e($col['name']) ?>[]" class="form-control mb-1" rows="2" placeholder="<?= e($col['label']) ?>"><?= e($row[$col['name']] ?? '') ?></textarea>
+                <?php elseif ($colType === 'select_or_text'): ?>
+                  <input type="text" name="<?= e($name) ?>_<?= e($col['name']) ?>[]" class="form-control mb-1" list="<?= e($name . '_' . $col['name']) ?>_options" placeholder="<?= e($col['label']) ?>" value="<?= e($row[$col['name']] ?? '') ?>">
+                  <datalist id="<?= e($name . '_' . $col['name']) ?>_options">
+                    <?php foreach (($col['options'] ?? []) as $opt): ?>
+                      <option value="<?= e($opt) ?>"></option>
+                    <?php endforeach; ?>
+                  </datalist>
                 <?php else: ?>
                   <input type="text" name="<?= e($name) ?>_<?= e($col['name']) ?>[]" class="form-control mb-1" placeholder="<?= e($col['label']) ?>" value="<?= e($row[$col['name']] ?? '') ?>">
                 <?php endif; ?>
@@ -76,6 +110,57 @@ function render_field(array $field, array $documentData): void {
           <?php endforeach; ?>
         </div>
         <button type="button" class="btn btn-sm btn-outline-primary mt-1 add-row" data-repeater-target="<?= e($name) ?>"><i class="bi bi-plus"></i> Add Entry</button>
+      <?php elseif ($field['type'] === 'party'): ?>
+        <?php $party = is_array($value) ? $value : []; ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <div class="row g-2 border rounded-3 p-2">
+          <div class="col-md-6"><input type="text" name="<?= e($name) ?>_full_name" class="form-control mb-1" placeholder="Full Name" value="<?= e($party['full_name'] ?? '') ?>"></div>
+          <div class="col-md-6"><input type="text" name="<?= e($name) ?>_id_no" class="form-control mb-1" placeholder="ID / CNIC / Passport No." value="<?= e($party['id_no'] ?? '') ?>"></div>
+          <div class="col-md-6"><input type="text" name="<?= e($name) ?>_phone" class="form-control mb-1" placeholder="Phone" value="<?= e($party['phone'] ?? '') ?>"></div>
+          <div class="col-md-6"><input type="email" name="<?= e($name) ?>_email" class="form-control mb-1" placeholder="Email" value="<?= e($party['email'] ?? '') ?>"></div>
+          <div class="col-12"><textarea name="<?= e($name) ?>_address" class="form-control" rows="2" placeholder="Address"><?= e($party['address'] ?? '') ?></textarea></div>
+        </div>
+      <?php elseif ($field['type'] === 'select'): ?>
+        <label class="form-label"><?= e($field['label']) ?></label>
+        <select name="<?= e($name) ?>" class="form-select" <?= $field['required'] ? 'required' : '' ?>>
+          <?php foreach (($field['options'] ?? []) as $opt): ?>
+            <option value="<?= e($opt) ?>" <?= (string) $value === (string) $opt ? 'selected' : '' ?>><?= e($opt) ?></option>
+          <?php endforeach; ?>
+        </select>
+      <?php elseif ($field['type'] === 'signature'): ?>
+        <?php
+        $sig = is_array($value) ? $value : [];
+        $mode = $sig['use_company_stamp'] ?? false ? 'stamp' : 'upload';
+        $existingPath = $sig['path'] ?? '';
+        ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <div class="border rounded-3 p-3 signature-block" data-name="<?= e($name) ?>">
+          <input type="hidden" name="<?= e($name) ?>_existing" value="<?= e((string) $existingPath) ?>">
+          <input type="hidden" name="<?= e($name) ?>_data" class="signature-data-input">
+          <div class="mb-2">
+            <input type="text" name="<?= e($name) ?>_id_no" class="form-control" placeholder="Signer ID / CNIC / Passport No." value="<?= e($sig['id_no'] ?? '') ?>">
+          </div>
+          <div class="btn-group mb-2 signature-mode-group" role="group">
+            <button type="button" class="btn btn-sm btn-outline-secondary sig-mode-btn <?= $mode === 'upload' ? 'active' : '' ?>" data-mode="upload">Upload Image</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary sig-mode-btn <?= $mode === 'draw' ? 'active' : '' ?>" data-mode="draw">Draw Signature</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary sig-mode-btn <?= $mode === 'stamp' ? 'active' : '' ?>" data-mode="stamp">Use Company Stamp</button>
+          </div>
+          <input type="hidden" name="<?= e($name) ?>_mode" class="signature-mode-input" value="<?= e($mode) ?>">
+
+          <div class="sig-pane" data-mode-pane="upload" style="<?= $mode === 'upload' ? '' : 'display:none;' ?>">
+            <input type="file" name="<?= e($name) ?>_file" class="form-control" accept="image/png,image/jpeg,image/webp">
+            <?php if ($existingPath): ?><div class="form-text">Current signature on file. Upload a new image to replace it.</div><?php endif; ?>
+          </div>
+
+          <div class="sig-pane" data-mode-pane="draw" style="<?= $mode === 'draw' ? '' : 'display:none;' ?>">
+            <canvas class="signature-canvas border rounded-2 bg-white" width="400" height="150" style="touch-action:none;cursor:crosshair;"></canvas>
+            <div class="mt-1"><button type="button" class="btn btn-sm btn-outline-secondary sig-clear-btn">Clear</button></div>
+          </div>
+
+          <div class="sig-pane" data-mode-pane="stamp" style="<?= $mode === 'stamp' ? '' : 'display:none;' ?>">
+            <div class="form-text">The company stamp from your <a href="<?= url('settings') ?>" target="_blank">Company Settings</a> will be used on this signature.</div>
+          </div>
+        </div>
       <?php elseif ($field['type'] === 'textarea'): ?>
         <label class="form-label"><?= e($field['label']) ?></label>
         <textarea name="<?= e($name) ?>" class="form-control" rows="3" <?= $field['required'] ? 'required' : '' ?>><?= e(is_array($value) ? '' : (string) $value) ?></textarea>
@@ -114,7 +199,7 @@ function render_field(array $field, array $documentData): void {
   </div>
   <div id="shareResult" class="alert alert-info d-none"></div>
 
-  <form method="POST" action="<?= e($formAction) ?>" id="documentForm">
+  <form method="POST" action="<?= e($formAction) ?>" id="documentForm" enctype="multipart/form-data">
     <?= csrf_field() ?>
     <input type="hidden" name="template_slug" value="<?= e($template['slug']) ?>">
 
@@ -145,6 +230,9 @@ function render_field(array $field, array $documentData): void {
           <?php if ($hasItemsTab): ?>
           <li class="nav-item"><button type="button" class="nav-link" data-tab="items">Items</button></li>
           <?php endif; ?>
+          <?php if ($hasPartiesTab): ?>
+          <li class="nav-item"><button type="button" class="nav-link" data-tab="parties">Parties &amp; Signatures</button></li>
+          <?php endif; ?>
           <li class="nav-item"><button type="button" class="nav-link" data-tab="design">Design</button></li>
           <?php if ($hasTermsTab): ?>
           <li class="nav-item"><button type="button" class="nav-link" data-tab="terms">Terms</button></li>
@@ -159,6 +247,13 @@ function render_field(array $field, array $documentData): void {
         <?php if ($hasItemsTab): ?>
         <div class="tab-pane d-none" data-pane="items">
           <?php foreach ($itemsFields as $field): render_field($field, $documentData); endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($hasPartiesTab): ?>
+        <div class="tab-pane d-none" data-pane="parties">
+          <?php foreach ($partyFields as $field): render_field($field, $documentData); endforeach; ?>
+          <?php foreach ($signatureFields as $field): render_field($field, $documentData); endforeach; ?>
         </div>
         <?php endif; ?>
 
@@ -183,15 +278,23 @@ function render_field(array $field, array $documentData): void {
                 <option value="classic" <?= $templateStyle === 'classic' ? 'selected' : '' ?>>Classic</option>
                 <option value="minimal" <?= $templateStyle === 'minimal' ? 'selected' : '' ?>>Minimal</option>
                 <option value="bold" <?= $templateStyle === 'bold' ? 'selected' : '' ?>>Bold</option>
+                <option value="corporate" <?= $templateStyle === 'corporate' ? 'selected' : '' ?>>Corporate</option>
+                <option value="construction" <?= $templateStyle === 'construction' ? 'selected' : '' ?>>Construction</option>
+                <option value="freelancer" <?= $templateStyle === 'freelancer' ? 'selected' : '' ?>>Freelancer</option>
+                <option value="consulting" <?= $templateStyle === 'consulting' ? 'selected' : '' ?>>Consulting</option>
               </select>
             </div>
             <div class="col-md-4">
-              <label class="form-label d-block">Logo</label>
+              <label class="form-label d-block">Logo &amp; Stamp</label>
               <div class="form-check form-switch mt-2">
                 <input class="form-check-input" type="checkbox" name="show_logo" id="showLogoSwitch" <?= $showLogo ? 'checked' : '' ?>>
                 <label class="form-check-label" for="showLogoSwitch">Show company logo on this document</label>
               </div>
-              <div class="form-text">Manage your logo in <a href="<?= url('settings') ?>">Company Settings</a>.</div>
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="show_stamp" id="showStampSwitch" <?= $showStamp ? 'checked' : '' ?>>
+                <label class="form-check-label" for="showStampSwitch">Show company stamp on this document</label>
+              </div>
+              <div class="form-text">Manage your logo and stamp in <a href="<?= url('settings') ?>">Company Settings</a>.</div>
             </div>
           </div>
         </div>
@@ -274,6 +377,76 @@ document.addEventListener('click', function (e) {
       removeBtn.closest('.repeater-row').remove();
     }
   }
+
+  const modeBtn = e.target.closest('.sig-mode-btn');
+  if (modeBtn) {
+    const block = modeBtn.closest('.signature-block');
+    const mode = modeBtn.dataset.mode;
+    block.querySelectorAll('.sig-mode-btn').forEach(b => b.classList.remove('active'));
+    modeBtn.classList.add('active');
+    block.querySelectorAll('.sig-pane').forEach(p => {
+      p.style.display = p.dataset.modePane === mode ? '' : 'none';
+    });
+    block.querySelector('.signature-mode-input').value = mode;
+    return;
+  }
+
+  const clearBtn = e.target.closest('.sig-clear-btn');
+  if (clearBtn) {
+    const block = clearBtn.closest('.signature-block');
+    const canvas = block.querySelector('.signature-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    block.querySelector('.signature-data-input').value = '';
+  }
+});
+
+document.querySelectorAll('.signature-canvas').forEach(function (canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#111827';
+  let drawing = false;
+
+  function pos(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const point = evt.touches ? evt.touches[0] : evt;
+    return {
+      x: (point.clientX - rect.left) * (canvas.width / rect.width),
+      y: (point.clientY - rect.top) * (canvas.height / rect.height),
+    };
+  }
+
+  function start(evt) {
+    drawing = true;
+    const p = pos(evt);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    evt.preventDefault();
+  }
+
+  function move(evt) {
+    if (!drawing) return;
+    const p = pos(evt);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    evt.preventDefault();
+  }
+
+  function end() {
+    if (!drawing) return;
+    drawing = false;
+    const block = canvas.closest('.signature-block');
+    block.querySelector('.signature-data-input').value = canvas.toDataURL('image/png');
+  }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('mouseleave', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
 });
 
 <?php if ($isEdit): ?>

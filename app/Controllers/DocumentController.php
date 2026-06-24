@@ -88,6 +88,7 @@ class DocumentController extends Controller
             'accent_color' => $this->collectAccentColor(),
             'template_style' => $this->collectTemplateStyle(),
             'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
+            'show_stamp' => Request::input('show_stamp') !== null ? 1 : 0,
         ]);
 
         $this->flashAndRedirect('success', 'Document saved.', url('documents/' . $documentId . '/edit'));
@@ -138,6 +139,7 @@ class DocumentController extends Controller
             'accent_color' => $this->collectAccentColor(),
             'template_style' => $this->collectTemplateStyle(),
             'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
+            'show_stamp' => Request::input('show_stamp') !== null ? 1 : 0,
         ]);
 
         $this->flashAndRedirect('success', 'Document updated.', url('documents/' . $id . '/edit'));
@@ -162,6 +164,7 @@ class DocumentController extends Controller
             'accent_color' => $this->collectAccentColor(),
             'template_style' => $this->collectTemplateStyle(),
             'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
+            'show_stamp' => Request::input('show_stamp') !== null ? 1 : 0,
         ]);
 
         $this->json(['ok' => true, 'saved_at' => date('H:i:s')]);
@@ -193,6 +196,7 @@ class DocumentController extends Controller
             'accent_color' => $document['accent_color'],
             'template_style' => $document['template_style'],
             'show_logo' => $document['show_logo'],
+            'show_stamp' => $document['show_stamp'],
         ]);
 
         $this->flashAndRedirect('success', 'Document duplicated.', url('documents/' . $newId . '/edit'));
@@ -403,7 +407,7 @@ class DocumentController extends Controller
     {
         $style = Request::string('template_style');
 
-        return in_array($style, ['modern', 'classic', 'minimal', 'bold'], true) ? $style : 'modern';
+        return in_array($style, ['modern', 'classic', 'minimal', 'bold', 'corporate', 'construction', 'freelancer', 'consulting'], true) ? $style : 'modern';
     }
 
     private function pdfFilename(array $document): string
