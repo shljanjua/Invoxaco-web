@@ -12,7 +12,7 @@ class DocxService
      * Generic DOCX renderer driven by the same field schema used for the PDF/HTML form.
      * Produces an editable Word document: title, key/value fields, and a line-items table when present.
      */
-    public static function fromDocument(string $title, array $fields, array $data, ?string $logoPath = null): string
+    public static function fromDocument(string $title, array $fields, array $data, ?string $logoPath = null, bool $showLegalDisclaimer = false): string
     {
         $phpWord = new PhpWord();
         $phpWord->setDefaultFontName('Calibri');
@@ -173,6 +173,14 @@ class DocxService
                 }
                 $section->addTextBreak(1);
             }
+        }
+
+        if ($showLegalDisclaimer) {
+            $section->addTextBreak(1);
+            $section->addText(
+                'This document is generated automatically and may not constitute legal advice. Users should consult a qualified attorney before relying on this document.',
+                ['italic' => true, 'size' => 9, 'color' => '92400E']
+            );
         }
 
         $tempFile = tempnam(sys_get_temp_dir(), 'invoxaco_docx_');

@@ -7,6 +7,27 @@ class GeneratorEngine
     private const PARTY_SUBFIELDS = ['full_name', 'id_no', 'address', 'phone', 'email'];
     private const OPTIONAL_CHARGE_FIELDS = ['shipping_cost', 'installation_charges', 'delivery_charges', 'training_charges', 'support_charges'];
 
+    /**
+     * Legal Documents templates and any template with a signature field are
+     * treated as binding agreements/letters and get the mandatory
+     * auto-generated-document disclaimer; invoices and other non-legal
+     * paperwork do not.
+     */
+    public static function isLegalAgreement(array $template, array $fields): bool
+    {
+        if ((int) ($template['category_id'] ?? 0) === 3) {
+            return true;
+        }
+
+        foreach ($fields as $field) {
+            if (($field['type'] ?? '') === 'signature') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function calculateLineItems(array $items, float $taxRate = 0): array
     {
         $subtotal = 0;
