@@ -40,13 +40,13 @@ use App\Models\DigitalProduct;
       <?php else: ?>
       <div class="row g-4">
         <?php foreach ($products as $p): ?>
-          <?php $price = DigitalProduct::effectivePrice($p); $onSale = DigitalProduct::isOnSale($p); ?>
+          <?php $price = DigitalProduct::effectivePrice($p); $onSale = DigitalProduct::isOnSale($p); $pwyw = DigitalProduct::isPayWhatYouWant($p); $minP = DigitalProduct::minPrice($p); ?>
           <div class="col-md-6 col-xl-4">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
               <a href="<?= url('store/product/' . $p['slug']) ?>" class="text-decoration-none">
                 <div class="ratio ratio-16x9 bg-light d-flex align-items-center justify-content-center">
                   <?php if (!empty($p['cover_image'])): ?>
-                    <img src="<?= asset('uploads/products/' . $p['cover_image']) ?>" alt="<?= e($p['name']) ?>" style="object-fit:cover;width:100%;height:100%;">
+                    <img src="<?= url('uploads/products/' . $p['cover_image']) ?>" alt="<?= e($p['name']) ?>" style="object-fit:cover;width:100%;height:100%;">
                   <?php else: ?>
                     <div class="d-flex align-items-center justify-content-center w-100 h-100"><i class="bi bi-file-earmark-richtext display-4 text-secondary"></i></div>
                   <?php endif; ?>
@@ -58,7 +58,9 @@ use App\Models\DigitalProduct;
                 <p class="text-secondary small flex-grow-1 mb-2"><?= e($p['short_description'] ?: '') ?></p>
                 <div class="d-flex align-items-center justify-content-between">
                   <div>
-                    <?php if ($price <= 0): ?>
+                    <?php if ($pwyw): ?>
+                      <span class="fw-bold fs-5"><?= $minP > 0 ? money($minP, $p['currency']) . '+' : 'Name your price' ?></span>
+                    <?php elseif ($price <= 0): ?>
                       <span class="fw-bold text-success">Free</span>
                     <?php else: ?>
                       <span class="fw-bold fs-5"><?= money($price, $p['currency']) ?></span>

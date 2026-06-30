@@ -359,6 +359,8 @@ CREATE TABLE IF NOT EXISTS digital_products (
     description TEXT NULL,
     price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     sale_price DECIMAL(10,2) NULL,
+    pricing_model ENUM('fixed','pwyw') NOT NULL DEFAULT 'fixed',
+    suggested_price DECIMAL(10,2) NULL,
     currency VARCHAR(10) NOT NULL DEFAULT 'USD',
     cover_image VARCHAR(255) NULL,
     file_path VARCHAR(255) NULL,

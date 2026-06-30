@@ -101,8 +101,42 @@ class DigitalProduct extends Model
 
     public static function isOnSale(array $product): bool
     {
-        return $product['sale_price'] !== null
+        return !self::isPayWhatYouWant($product)
+            && $product['sale_price'] !== null
             && (float) $product['sale_price'] >= 0
             && (float) $product['sale_price'] < (float) $product['price'];
+    }
+
+    /** Gumroad-style "name your price" product. */
+    public static function isPayWhatYouWant(array $product): bool
+    {
+        return ($product['pricing_model'] ?? 'fixed') === 'pwyw';
+    }
+
+    /** For a PWYW product, `price` is the minimum the buyer may pay. */
+    public static function minPrice(array $product): float
+    {
+        return max(0.0, (float) ($product['price'] ?? 0));
+    }
+
+    public static function suggestedPrice(array $product): ?float
+    {
+        if (($product['suggested_price'] ?? null) === null || $product['suggested_price'] === '') {
+            return null;
+        }
+        return max(self::minPrice($product), (float) $product['suggested_price']);
+    }
+
+    /**
+     * Clamps a buyer-entered amount to a valid charge for a PWYW product
+     * (never below the minimum). Falls back to suggested/min when empty.
+     */
+    public static function resolvePwywAmount(array $product, $entered): float
+    {
+        $min = self::minPrice($product);
+        if ($entered === null || $entered === '' || !is_numeric($entered)) {
+            return self::suggestedPrice($product) ?? $min;
+        }
+        return max($min, round((float) $entered, 2));
     }
 }

@@ -31,13 +31,25 @@ class FileUploader
 
         $extension = self::ALLOWED_MIME[$mime];
         $filename = bin2hex(random_bytes(16)) . '.' . $extension;
-        $destination = __DIR__ . '/../../public/uploads/' . $subdir . '/' . $filename;
+        $dir = __DIR__ . '/../../public/uploads/' . $subdir;
+        self::ensureDir($dir);
+        $destination = $dir . '/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $destination)) {
-            throw new \RuntimeException('Failed to save the uploaded file.');
+            // Fallback for non-HTTP-uploaded files (seed scripts / tests)
+            if (!@rename($file['tmp_name'], $destination)) {
+                throw new \RuntimeException('Failed to save the uploaded file.');
+            }
         }
 
         return $filename;
+    }
+
+    private static function ensureDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
     }
 
     public static function storeDataUrlImage(string $dataUrl, string $subdir): ?string
@@ -58,7 +70,9 @@ class FileUploader
         }
 
         $filename = bin2hex(random_bytes(16)) . '.' . $extension;
-        $destination = __DIR__ . '/../../public/uploads/' . $subdir . '/' . $filename;
+        $dir = __DIR__ . '/../../public/uploads/' . $subdir;
+        self::ensureDir($dir);
+        $destination = $dir . '/' . $filename;
 
         if (file_put_contents($destination, $binary) === false) {
             throw new \RuntimeException('Failed to save the signature image.');
