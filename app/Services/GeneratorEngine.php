@@ -8,10 +8,15 @@ class GeneratorEngine
     private const OPTIONAL_CHARGE_FIELDS = ['shipping_cost', 'installation_charges', 'delivery_charges', 'training_charges', 'support_charges'];
 
     /**
-     * Legal Documents templates and any template with a signature field are
-     * treated as binding agreements/letters and get the mandatory
-     * auto-generated-document disclaimer; invoices and other non-legal
-     * paperwork do not.
+     * Decides whether a generated document is a binding legal agreement that
+     * should carry the "may not constitute legal advice" disclaimer.
+     *
+     * The trigger is the legal CONTENT of the document, not merely the presence
+     * of a signature line: every template in the Legal Documents category, or
+     * any template that contains formal contract clauses (a "*_clause" field)
+     * or a governing-law field, is treated as a legal agreement. Routine signed
+     * paperwork — invoices, receipts, financial statements, reports, salary
+     * slips, plain business letters — is not, so it does not get the disclaimer.
      */
     public static function isLegalAgreement(array $template, array $fields): bool
     {
@@ -20,7 +25,8 @@ class GeneratorEngine
         }
 
         foreach ($fields as $field) {
-            if (($field['type'] ?? '') === 'signature') {
+            $name = (string) ($field['name'] ?? '');
+            if ($name === 'governing_law' || str_ends_with($name, '_clause')) {
                 return true;
             }
         }
