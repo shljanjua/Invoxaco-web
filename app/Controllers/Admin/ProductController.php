@@ -130,6 +130,8 @@ class ProductController extends Controller
         $type = Request::string('type');
         $price = round((float) Request::input('price', 0), 2);
         $saleRaw = Request::string('sale_price');
+        $pricingModel = Request::string('pricing_model') === 'pwyw' ? 'pwyw' : 'fixed';
+        $suggestedRaw = Request::string('suggested_price');
 
         $categoryId = (int) Request::input('category_id');
 
@@ -141,7 +143,10 @@ class ProductController extends Controller
             'short_description' => Request::string('short_description') ?: null,
             'description' => Request::string('description') ?: null,
             'price' => $price,
-            'sale_price' => $saleRaw !== '' ? round((float) $saleRaw, 2) : null,
+            // For PWYW, sale price doesn't apply; `price` is the minimum.
+            'sale_price' => ($pricingModel === 'fixed' && $saleRaw !== '') ? round((float) $saleRaw, 2) : null,
+            'pricing_model' => $pricingModel,
+            'suggested_price' => ($pricingModel === 'pwyw' && $suggestedRaw !== '') ? round((float) $suggestedRaw, 2) : null,
             'currency' => strtoupper(Request::string('currency') ?: 'USD'),
             'is_featured' => Request::input('is_featured') ? 1 : 0,
             'is_active' => Request::input('is_active') ? 1 : 0,

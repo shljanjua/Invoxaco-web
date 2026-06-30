@@ -6,32 +6,51 @@ use App\Core\Session;
 use App\Models\DigitalProduct;
 
 /**
- * Simple session-backed cart for digital products. Because every
- * product is a single-purchase digital good, the cart is just a set
- * of product IDs (quantity is always 1 per product).
+ * Session-backed cart for digital products. Stored as a map of
+ * productId => chosenAmount, where chosenAmount is the buyer's
+ * "pay what you want" amount (or null for normal fixed-price items).
  */
 class Cart
 {
     private const KEY = 'cart';
 
+    /** @return array<int,float|null> productId => chosen amount (or null) */
+    private static function map(): array
+    {
+        $raw = Session::get(self::KEY, []);
+        if (!is_array($raw)) {
+            return [];
+        }
+        $out = [];
+        foreach ($raw as $id => $amount) {
+            // Back-compat: an old cart was a plain list of ids.
+            if (is_int($id) && !is_numeric($amount) && $amount !== null) {
+                $out[(int) $amount] = null;
+            } else {
+                $out[(int) $id] = ($amount === null) ? null : (float) $amount;
+            }
+        }
+        return $out;
+    }
+
     /** @return int[] */
     public static function ids(): array
     {
-        return array_values(array_unique(array_map('intval', Session::get(self::KEY, []))));
+        return array_map('intval', array_keys(self::map()));
     }
 
-    public static function add(int $productId): void
+    public static function add(int $productId, ?float $amount = null): void
     {
-        $ids = self::ids();
-        if (!in_array($productId, $ids, true)) {
-            $ids[] = $productId;
-        }
-        Session::put(self::KEY, $ids);
+        $map = self::map();
+        $map[$productId] = $amount;
+        Session::put(self::KEY, $map);
     }
 
     public static function remove(int $productId): void
     {
-        Session::put(self::KEY, array_values(array_filter(self::ids(), fn ($id) => $id !== $productId)));
+        $map = self::map();
+        unset($map[$productId]);
+        Session::put(self::KEY, $map);
     }
 
     public static function clear(): void
@@ -41,17 +60,18 @@ class Cart
 
     public static function count(): int
     {
-        return count(self::ids());
+        return count(self::map());
     }
 
     public static function has(int $productId): bool
     {
-        return in_array($productId, self::ids(), true);
+        return array_key_exists($productId, self::map());
     }
 
     /**
      * Resolves the cart to live, active products and computes the total.
-     * Drops any product that has gone inactive or been deleted.
+     * Drops any product that has gone inactive or been deleted. Honours
+     * pay-what-you-want amounts, clamped to each product's minimum.
      *
      * @return array{items:array<int,array>,subtotal:float,total:float,currency:string}
      */
@@ -61,12 +81,20 @@ class Cart
         $subtotal = 0.0;
         $currency = 'USD';
 
-        foreach (self::ids() as $id) {
-            $product = DigitalProduct::find($id);
+        foreach (self::map() as $id => $chosen) {
+            $product = DigitalProduct::find((int) $id);
             if (!$product || (int) $product['is_active'] !== 1) {
                 continue;
             }
-            $price = DigitalProduct::effectivePrice($product);
+
+            if (DigitalProduct::isPayWhatYouWant($product)) {
+                $price = DigitalProduct::resolvePwywAmount($product, $chosen);
+                $product['is_pwyw'] = true;
+            } else {
+                $price = DigitalProduct::effectivePrice($product);
+                $product['is_pwyw'] = false;
+            }
+
             $product['effective_price'] = $price;
             $items[] = $product;
             $subtotal += $price;

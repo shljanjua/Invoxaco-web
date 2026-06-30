@@ -30,8 +30,13 @@
             <td><?= e($p['category_name'] ?? '—') ?></td>
             <td class="text-capitalize"><?= e($p['type']) ?></td>
             <td>
-              <?php if ((float) $p['price'] <= 0): ?><span class="text-success">Free</span><?php else: ?><?= money((float) $p['price'], $p['currency']) ?><?php endif; ?>
-              <?php if ($p['sale_price'] !== null): ?><br><span class="badge bg-warning text-dark">Sale <?= money((float) $p['sale_price'], $p['currency']) ?></span><?php endif; ?>
+              <?php if (($p['pricing_model'] ?? 'fixed') === 'pwyw'): ?>
+                <?= (float) $p['price'] > 0 ? money((float) $p['price'], $p['currency']) . '+' : 'Name your price' ?>
+                <br><span class="badge bg-info text-dark">Pay what you want</span>
+              <?php else: ?>
+                <?php if ((float) $p['price'] <= 0): ?><span class="text-success">Free</span><?php else: ?><?= money((float) $p['price'], $p['currency']) ?><?php endif; ?>
+                <?php if ($p['sale_price'] !== null): ?><br><span class="badge bg-warning text-dark">Sale <?= money((float) $p['sale_price'], $p['currency']) ?></span><?php endif; ?>
+              <?php endif; ?>
             </td>
             <td><?php if (!empty($p['file_path'])): ?><i class="bi bi-check-circle text-success"></i> <?= e($p['file_name']) ?><?php else: ?><span class="badge bg-danger">No file</span><?php endif; ?></td>
             <td><?php if ((int) $p['is_active'] === 1): ?><span class="badge bg-success">Yes</span><?php else: ?><span class="badge bg-secondary">No</span><?php endif; ?></td>

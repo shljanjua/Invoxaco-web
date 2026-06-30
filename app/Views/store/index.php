@@ -40,7 +40,7 @@ use App\Models\DigitalProduct;
       <?php else: ?>
       <div class="row g-4">
         <?php foreach ($products as $p): ?>
-          <?php $price = DigitalProduct::effectivePrice($p); $onSale = DigitalProduct::isOnSale($p); ?>
+          <?php $price = DigitalProduct::effectivePrice($p); $onSale = DigitalProduct::isOnSale($p); $pwyw = DigitalProduct::isPayWhatYouWant($p); $minP = DigitalProduct::minPrice($p); ?>
           <div class="col-md-6 col-xl-4">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
               <a href="<?= url('store/product/' . $p['slug']) ?>" class="text-decoration-none">
@@ -58,7 +58,9 @@ use App\Models\DigitalProduct;
                 <p class="text-secondary small flex-grow-1 mb-2"><?= e($p['short_description'] ?: '') ?></p>
                 <div class="d-flex align-items-center justify-content-between">
                   <div>
-                    <?php if ($price <= 0): ?>
+                    <?php if ($pwyw): ?>
+                      <span class="fw-bold fs-5"><?= $minP > 0 ? money($minP, $p['currency']) . '+' : 'Name your price' ?></span>
+                    <?php elseif ($price <= 0): ?>
                       <span class="fw-bold text-success">Free</span>
                     <?php else: ?>
                       <span class="fw-bold fs-5"><?= money($price, $p['currency']) ?></span>

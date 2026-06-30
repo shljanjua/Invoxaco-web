@@ -140,20 +140,36 @@ $curCurrency = $isEdit ? ($product['currency'] ?: 'USD') : 'USD';
       <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body">
           <h6 class="fw-bold mb-3"><i class="bi bi-tag me-2"></i>Pricing</h6>
+          <?php $pm = $product['pricing_model'] ?? 'fixed'; ?>
           <div class="mb-3">
-            <label class="form-label">Price</label>
+            <label class="form-label">Pricing model</label>
+            <select name="pricing_model" id="f_pmodel" class="form-select">
+              <option value="fixed" <?= $pm === 'fixed' ? 'selected' : '' ?>>Fixed price</option>
+              <option value="pwyw" <?= $pm === 'pwyw' ? 'selected' : '' ?>>Pay what you want</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label"><span id="priceLabel"><?= $pm === 'pwyw' ? 'Minimum price' : 'Price' ?></span></label>
             <div class="input-group">
               <span class="input-group-text" id="curSymbol"><?= e(currency_symbol($curCurrency)) ?></span>
               <input type="number" step="0.01" min="0" name="price" id="f_price" class="form-control" value="<?= pv($product, 'price', '0.00') ?>">
             </div>
-            <div class="form-text">Enter <strong>0</strong> for a free lead magnet.</div>
+            <div class="form-text" id="priceHelp"><?= $pm === 'pwyw' ? 'The least a buyer may pay. Set 0 to allow free (“name your price”).' : 'Enter 0 for a free lead magnet.' ?></div>
           </div>
-          <div class="mb-3">
+          <div class="mb-3 pm-fixed" style="<?= $pm === 'pwyw' ? 'display:none;' : '' ?>">
             <label class="form-label">Sale price <span class="text-secondary small">(optional)</span></label>
             <div class="input-group">
-              <span class="input-group-text"><?= e(currency_symbol($curCurrency)) ?></span>
+              <span class="input-group-text price-sym"><?= e(currency_symbol($curCurrency)) ?></span>
               <input type="number" step="0.01" min="0" name="sale_price" class="form-control" value="<?= $product && $product['sale_price'] !== null ? pv($product, 'sale_price') : '' ?>" placeholder="Discounted price">
             </div>
+          </div>
+          <div class="mb-3 pm-pwyw" style="<?= $pm === 'pwyw' ? '' : 'display:none;' ?>">
+            <label class="form-label">Suggested price <span class="text-secondary small">(optional)</span></label>
+            <div class="input-group">
+              <span class="input-group-text price-sym"><?= e(currency_symbol($curCurrency)) ?></span>
+              <input type="number" step="0.01" min="0" name="suggested_price" class="form-control" value="<?= $product && ($product['suggested_price'] ?? null) !== null ? pv($product, 'suggested_price') : '' ?>" placeholder="Pre-filled amount for buyers">
+            </div>
+            <div class="form-text">Shown as the default the buyer can adjust. Must be at least the minimum.</div>
           </div>
           <div class="mb-0">
             <label class="form-label">Currency</label>
@@ -257,6 +273,7 @@ $curCurrency = $isEdit ? ($product['currency'] ?: 'USD') : 'USD';
   var SYM={USD:'$',EUR:'€',GBP:'£',INR:'₹',PKR:'Rs ',AUD:'A$',CAD:'C$',JPY:'¥',AED:'AED ',SAR:'SAR '};
   function sym(c){ c=(c||'USD').toUpperCase(); return SYM[c]||(c+' '); }
   function bind(id, fn){ var el=document.getElementById(id); if(el) el.addEventListener('input', fn); }
+  function isPwyw(){ var s=document.getElementById('f_pmodel'); return s && s.value==='pwyw'; }
   function upd(){
     var name=document.getElementById('f_name').value||'Product name';
     var short=document.getElementById('f_short').value||'Your short description appears here.';
@@ -264,10 +281,25 @@ $curCurrency = $isEdit ? ($product['currency'] ?: 'USD') : 'USD';
     var cur=document.getElementById('f_currency').value||'USD';
     document.getElementById('previewName').textContent=name;
     document.getElementById('previewShort').textContent=short;
-    document.getElementById('previewPrice').textContent= price>0 ? (sym(cur)+price.toFixed(2)) : 'Free';
+    var pwyw=isPwyw();
+    var priceTxt = price>0 ? (sym(cur)+price.toFixed(2)) : 'Free';
+    if(pwyw) priceTxt = price>0 ? (sym(cur)+price.toFixed(2)+'+') : 'Name your price';
+    document.getElementById('previewPrice').textContent=priceTxt;
     document.getElementById('curSymbol').textContent=sym(cur);
+    document.querySelectorAll('.price-sym').forEach(function(el){ el.textContent=sym(cur); });
+  }
+  function togglePricing(){
+    var pwyw=isPwyw();
+    document.querySelectorAll('.pm-fixed').forEach(function(el){ el.style.display = pwyw?'none':''; });
+    document.querySelectorAll('.pm-pwyw').forEach(function(el){ el.style.display = pwyw?'':'none'; });
+    document.getElementById('priceLabel').textContent = pwyw?'Minimum price':'Price';
+    document.getElementById('priceHelp').innerHTML = pwyw
+      ? 'The least a buyer may pay. Set 0 to allow free (“name your price”).'
+      : 'Enter 0 for a free lead magnet.';
+    upd();
   }
   ['f_name','f_short','f_price','f_currency'].forEach(function(id){ bind(id, upd); });
+  var pmodel=document.getElementById('f_pmodel'); if(pmodel) pmodel.addEventListener('change', togglePricing);
   var typeSel=document.getElementById('f_type');
   if(typeSel) typeSel.addEventListener('change', function(){ document.getElementById('previewType').textContent=this.value; });
 })();

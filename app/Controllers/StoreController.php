@@ -87,7 +87,12 @@ class StoreController extends Controller
             $this->flashAndRedirect('error', 'That product is not available.', url('store'));
         }
 
-        Cart::add($id);
+        $amount = null;
+        if (DigitalProduct::isPayWhatYouWant($product)) {
+            $amount = DigitalProduct::resolvePwywAmount($product, Request::input('amount'));
+        }
+
+        Cart::add($id, $amount);
 
         if (Request::input('buy_now')) {
             $this->redirect(url('store/checkout'));
