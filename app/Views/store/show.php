@@ -20,7 +20,7 @@ $sizeMb = $product['file_size'] ? round($product['file_size'] / 1048576, 2) : nu
       <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top:90px;">
         <div class="ratio ratio-4x3 bg-light">
           <?php if (!empty($product['cover_image'])): ?>
-            <img src="<?= asset('uploads/products/' . $product['cover_image']) ?>" alt="<?= e($product['name']) ?>" style="object-fit:cover;width:100%;height:100%;">
+            <img src="<?= url('uploads/products/' . $product['cover_image']) ?>" alt="<?= e($product['name']) ?>" style="object-fit:cover;width:100%;height:100%;">
           <?php else: ?>
             <div class="d-flex align-items-center justify-content-center"><i class="bi bi-file-earmark-richtext display-1 text-secondary"></i></div>
           <?php endif; ?>

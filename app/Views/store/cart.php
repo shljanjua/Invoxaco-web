@@ -21,7 +21,7 @@
             <tr>
               <td style="width:70px;">
                 <?php if (!empty($p['cover_image'])): ?>
-                  <img src="<?= asset('uploads/products/' . $p['cover_image']) ?>" style="width:54px;height:54px;object-fit:cover;border-radius:8px;">
+                  <img src="<?= url('uploads/products/' . $p['cover_image']) ?>" style="width:54px;height:54px;object-fit:cover;border-radius:8px;">
                 <?php else: ?>
                   <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:54px;height:54px;"><i class="bi bi-file-earmark-richtext text-secondary"></i></div>
                 <?php endif; ?>

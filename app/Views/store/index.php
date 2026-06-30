@@ -46,7 +46,7 @@ use App\Models\DigitalProduct;
               <a href="<?= url('store/product/' . $p['slug']) ?>" class="text-decoration-none">
                 <div class="ratio ratio-16x9 bg-light d-flex align-items-center justify-content-center">
                   <?php if (!empty($p['cover_image'])): ?>
-                    <img src="<?= asset('uploads/products/' . $p['cover_image']) ?>" alt="<?= e($p['name']) ?>" style="object-fit:cover;width:100%;height:100%;">
+                    <img src="<?= url('uploads/products/' . $p['cover_image']) ?>" alt="<?= e($p['name']) ?>" style="object-fit:cover;width:100%;height:100%;">
                   <?php else: ?>
                     <div class="d-flex align-items-center justify-content-center w-100 h-100"><i class="bi bi-file-earmark-richtext display-4 text-secondary"></i></div>
                   <?php endif; ?>

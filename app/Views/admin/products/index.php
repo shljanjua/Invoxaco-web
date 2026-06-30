@@ -20,7 +20,7 @@
             <td>
               <div class="d-flex align-items-center gap-2">
                 <?php if (!empty($p['cover_image'])): ?>
-                  <img src="<?= asset('uploads/products/' . $p['cover_image']) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+                  <img src="<?= url('uploads/products/' . $p['cover_image']) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
                 <?php else: ?>
                   <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-file-earmark text-secondary"></i></div>
                 <?php endif; ?>
