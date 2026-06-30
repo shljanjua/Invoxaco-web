@@ -13,6 +13,7 @@ use App\Controllers\GeneratorController;
 use App\Controllers\HomeController;
 use App\Controllers\PageController;
 use App\Controllers\SitemapController;
+use App\Controllers\StoreController;
 use App\Controllers\SupportController;
 use App\Controllers\TeamController;
 use App\Middleware\AuthMiddleware;
@@ -76,6 +77,20 @@ $router->get('/generators', [GeneratorController::class, 'catalog']);
 $router->get('/generators/category/{slug}', [GeneratorController::class, 'category']);
 $router->post('/generators/{slug}/notify', [GeneratorController::class, 'notify']);
 $router->get('/generators/{slug}', [GeneratorController::class, 'show']);
+
+// Digital products store (public)
+$router->get('/store', [StoreController::class, 'index']);
+$router->get('/store/cart', [StoreController::class, 'cart']);
+$router->post('/store/cart/add', [StoreController::class, 'cartAdd']);
+$router->post('/store/cart/remove', [StoreController::class, 'cartRemove']);
+$router->get('/store/checkout', [StoreController::class, 'checkout']);
+$router->post('/store/checkout', [StoreController::class, 'checkoutProcess']);
+$router->get('/store/success', [StoreController::class, 'success']);
+$router->get('/store/download/{token}', [StoreController::class, 'download']);
+$router->get('/store/order/{token}', [StoreController::class, 'orderView']);
+$router->get('/store/category/{slug}', [StoreController::class, 'category']);
+$router->get('/store/product/{slug}', [StoreController::class, 'show']);
+$router->get('/downloads', [StoreController::class, 'downloads'], [AuthMiddleware::class]);
 
 // Documents
 $router->group([AuthMiddleware::class], function ($router) {

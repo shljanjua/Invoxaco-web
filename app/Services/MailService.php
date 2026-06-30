@@ -31,6 +31,9 @@ class MailService
         $fromName = $smtp['from_name'] ?? '' ?: $fallback['from_name'];
 
         $this->mailer->isSMTP();
+        // Fail fast instead of hanging a user's request for minutes when the
+        // mail server is slow or unreachable (default PHPMailer timeout is 300s).
+        $this->mailer->Timeout = 12;
         $this->mailer->Host = $host;
         $this->mailer->Port = (int) $port;
         $this->mailer->SMTPAuth = !empty($username);

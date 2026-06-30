@@ -11,6 +11,7 @@
     <div class="collapse navbar-collapse bg-white" id="mainNav">
       <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
         <li class="nav-item"><a class="nav-link" href="<?= url('generators') ?>">Generators</a></li>
+        <li class="nav-item"><a class="nav-link" href="<?= url('store') ?>">Store</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('calculators') ?>">Calculators</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('features') ?>">Features</a></li>
         <li class="nav-item"><a class="nav-link" href="<?= url('pricing') ?>">Pricing</a></li>
@@ -29,6 +30,7 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <?php if ($user['role'] !== 'admin'): ?>
+              <li><a class="dropdown-item" href="<?= url('downloads') ?>"><i class="bi bi-download me-2"></i>My Downloads</a></li>
               <li><a class="dropdown-item" href="<?= url('settings') ?>"><i class="bi bi-gear me-2"></i>Settings</a></li>
               <?php endif; ?>
               <li><hr class="dropdown-divider"></li>

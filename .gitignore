@@ -14,10 +14,17 @@ public/uploads/blog/*
 public/uploads/logos/*
 public/uploads/signatures/*
 public/uploads/stamps/*
+public/uploads/products/*
 !public/uploads/blog/.gitkeep
 !public/uploads/logos/.gitkeep
 !public/uploads/signatures/.gitkeep
 !public/uploads/stamps/.gitkeep
+!public/uploads/products/.gitkeep
+
+# Sellable product files (stored outside webroot, never committed)
+storage/products/*
+!storage/products/.gitkeep
+!storage/products/.htaccess
 
 # Dompdf runtime font metric cache (regenerated on first use)
 vendor/dompdf/dompdf/lib/fonts/*.afm.json
