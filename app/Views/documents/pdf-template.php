@@ -57,6 +57,31 @@ if ($style === 'corporate') {
     $fontFamily = "Georgia, 'Times New Roman', serif";
 }
 
+// Per-document typography & colour controls (override the style defaults).
+$fontMap = [
+    'sans' => 'Arial, Helvetica, sans-serif',
+    'serif' => "'Times New Roman', Georgia, serif",
+    'modern' => "'DejaVu Sans', Arial, sans-serif",
+    'classic' => "Georgia, 'Times New Roman', serif",
+    'mono' => "'Courier New', Courier, monospace",
+];
+$docFont = $document['font_family'] ?? '';
+if (isset($fontMap[$docFont])) {
+    $fontFamily = $fontMap[$docFont];
+}
+$scaleMap = ['compact' => 12, 'normal' => 13, 'large' => 15];
+$baseFont = $scaleMap[$document['font_scale'] ?? 'normal'] ?? 13;
+$headingColor = preg_match('/^#[0-9a-fA-F]{6}$/', (string) ($document['heading_color'] ?? '')) ? $document['heading_color'] : '#111827';
+$bodyColor = preg_match('/^#[0-9a-fA-F]{6}$/', (string) ($document['body_color'] ?? '')) ? $document['body_color'] : '#1f2937';
+
+// Helper to render a chart field's stored data into inline SVG for the PDF.
+$renderDocChart = static function ($chartData, string $accent): string {
+    if (!is_array($chartData) || empty($chartData['rows'])) {
+        return '';
+    }
+    return \App\Services\ChartSvgService::render($chartData, $accent);
+};
+
 $displayTitle = doc_title($template['name']);
 $showLegalDisclaimer = \App\Services\GeneratorEngine::isLegalAgreement($template, $fields);
 
@@ -100,7 +125,7 @@ function invoxaco_doc_asset(string $relative, bool $forBrowser): string
 </div>
 <?php endif; ?>
 
-<div style="font-family: <?= $fontFamily ?>; color:#1f2937; padding:0; max-width:800px; margin:0 auto; position:relative;">
+<div style="font-family: <?= $fontFamily ?>; font-size:<?= (int) $baseFont ?>px; color:<?= e($bodyColor) ?>; padding:0; max-width:800px; margin:0 auto; position:relative;">
 
 <?php if ($watermark): ?>
 <div style="position:fixed; top:40%; left:10%; transform:rotate(-30deg); font-size:80px; color:rgba(0,0,0,0.08); font-weight:bold; z-index:0;">INVOXACO FREE</div>
@@ -299,13 +324,68 @@ function invoxaco_doc_asset(string $relative, bool $forBrowser): string
 <?php endif; ?>
 
 <?php foreach ($fields as $field): ?>
+  <?php $ftype = $field['type'] ?? 'text'; ?>
   <?php if (in_array($field['name'], $skipInHeader, true)) continue; ?>
-  <?php $value = $data[$field['name']] ?? ''; if ($value === '' || $value === null) continue; ?>
-  <?php if (($field['type'] ?? '') === 'date' && strtotime((string) $value) !== false) { $value = date('F j, Y', strtotime((string) $value)); } ?>
-  <div style="margin-bottom:16px;">
-    <div style="font-size:11px; color:#9ca3af; text-transform:uppercase; margin-bottom:4px;"><?= e($field['label']) ?></div>
-    <div style="font-size:13px; white-space:pre-line;"><?= e(is_array($value) ? implode(', ', $value) : (string) $value) ?></div>
-  </div>
+  <?php $value = $data[$field['name']] ?? ''; ?>
+
+  <?php if ($ftype === 'image'): ?>
+    <?php $imgFile = is_string($value) ? trim($value) : ''; if ($imgFile === '' || !file_exists(__DIR__ . '/../../../public/uploads/doc-images/' . $imgFile)) continue; ?>
+    <div style="margin-bottom:18px;">
+      <div style="font-size:11px; color:#9ca3af; text-transform:uppercase; margin-bottom:6px;"><?= e($field['label']) ?></div>
+      <img src="<?= invoxaco_doc_asset('uploads/doc-images/' . $imgFile, $forBrowser) ?>" style="max-width:100%; max-height:340px; border-radius:6px;">
+    </div>
+
+  <?php elseif ($ftype === 'gallery'): ?>
+    <?php
+    $gal = [];
+    if (is_string($value) && $value !== '') { $d = json_decode($value, true); $gal = is_array($d) ? $d : []; }
+    $gal = array_values(array_filter($gal, fn ($g) => is_string($g) && file_exists(__DIR__ . '/../../../public/uploads/doc-images/' . $g)));
+    if (empty($gal)) continue;
+    ?>
+    <div style="margin-bottom:18px;">
+      <div style="font-size:11px; color:#9ca3af; text-transform:uppercase; margin-bottom:6px;"><?= e($field['label']) ?></div>
+      <table style="width:100%; border-collapse:collapse;"><tr>
+      <?php foreach ($gal as $i => $g): ?>
+        <td style="width:<?= (int) floor(100 / min(count($gal), 3)) ?>%; padding:3px; vertical-align:top;">
+          <img src="<?= invoxaco_doc_asset('uploads/doc-images/' . $g, $forBrowser) ?>" style="width:100%; border-radius:6px;">
+        </td>
+        <?php if (($i + 1) % 3 === 0 && $i + 1 < count($gal)): ?></tr><tr><?php endif; ?>
+      <?php endforeach; ?>
+      </tr></table>
+    </div>
+
+  <?php elseif ($ftype === 'chart'): ?>
+    <?php $svg = $renderDocChart($value, $accent); if ($svg === '') continue; ?>
+    <div style="margin-bottom:20px;">
+      <?php $ct = is_array($value) ? trim((string) ($value['title'] ?? '')) : ''; ?>
+      <div style="font-size:13px; font-weight:bold; color:<?= e($headingColor) ?>; margin-bottom:6px;"><?= e($ct !== '' ? $ct : $field['label']) ?></div>
+      <div style="width:100%; max-width:520px;"><?= $svg ?></div>
+    </div>
+
+  <?php elseif ($ftype === 'table'): ?>
+    <?php $rows = is_array($value) ? $value : []; if (empty($rows)) continue; $cols = $field['columns'] ?? []; ?>
+    <div style="margin-bottom:6px; font-size:11px; color:#9ca3af; text-transform:uppercase;"><?= e($field['label']) ?></div>
+    <table style="width:100%; border-collapse:collapse; margin:0 0 20px;">
+      <thead><tr style="background:<?= e($accent) ?>;">
+        <?php foreach ($cols as $c): ?><th style="text-align:left; padding:8px 10px; font-size:12px; color:#fff;"><?= e($c['label']) ?></th><?php endforeach; ?>
+      </tr></thead>
+      <tbody>
+      <?php foreach ($rows as $ri => $row): ?>
+        <tr style="background:<?= $ri % 2 ? '#f9fafb' : '#fff' ?>;">
+          <?php foreach ($cols as $c): ?><td style="padding:8px 10px; font-size:12px; border-bottom:1px solid #eef0f3;"><?= e((string) ($row[$c['name']] ?? '')) ?></td><?php endforeach; ?>
+        </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+
+  <?php else: ?>
+    <?php if ($value === '' || $value === null || is_array($value)) continue; ?>
+    <?php if ($ftype === 'date' && strtotime((string) $value) !== false) { $value = date('F j, Y', strtotime((string) $value)); } ?>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px; color:#9ca3af; text-transform:uppercase; margin-bottom:4px;"><?= e($field['label']) ?></div>
+      <div style="white-space:pre-line; color:<?= e($bodyColor) ?>;"><?= e((string) $value) ?></div>
+    </div>
+  <?php endif; ?>
 <?php endforeach; ?>
 
 <?php foreach ($fields as $field): ?>

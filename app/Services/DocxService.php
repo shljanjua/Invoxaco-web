@@ -28,18 +28,65 @@ class DocxService
         $section->addTextBreak(1);
 
         foreach ($fields as $field) {
-            if (in_array($field['type'], ['line_items', 'group_list', 'party', 'signature'], true)) {
+            $ftype = $field['type'] ?? 'text';
+            if (in_array($ftype, ['line_items', 'group_list', 'party', 'signature', 'image', 'gallery', 'table', 'chart'], true)) {
                 continue;
             }
 
             $value = $data[$field['name']] ?? '';
-            if ($value === '' || $value === null) {
+            if ($value === '' || $value === null || is_array($value)) {
                 continue;
             }
 
             $section->addText($field['label'], ['bold' => true, 'size' => 10, 'color' => '666666']);
-            $section->addText(is_array($value) ? implode(', ', $value) : (string) $value);
+            $section->addText((string) $value);
             $section->addTextBreak(1);
+        }
+
+        // Images, galleries, tables and charts.
+        $docImageDir = __DIR__ . '/../../public/uploads/doc-images/';
+        foreach ($fields as $field) {
+            $ftype = $field['type'] ?? '';
+            $value = $data[$field['name']] ?? null;
+
+            if ($ftype === 'image' && is_string($value) && $value !== '' && is_file($docImageDir . $value)) {
+                $section->addText($field['label'], ['bold' => true, 'size' => 10, 'color' => '666666']);
+                try { $section->addImage($docImageDir . $value, ['width' => 360, 'height' => 220, 'ratio' => true]); } catch (\Throwable) {}
+                $section->addTextBreak(1);
+            } elseif ($ftype === 'gallery' && is_string($value) && $value !== '') {
+                $gal = json_decode($value, true);
+                if (is_array($gal) && $gal) {
+                    $section->addText($field['label'], ['bold' => true, 'size' => 10, 'color' => '666666']);
+                    foreach ($gal as $g) {
+                        if (is_string($g) && is_file($docImageDir . $g)) {
+                            try { $section->addImage($docImageDir . $g, ['width' => 240, 'height' => 160, 'ratio' => true]); } catch (\Throwable) {}
+                        }
+                    }
+                    $section->addTextBreak(1);
+                }
+            } elseif ($ftype === 'table' && is_array($value) && $value) {
+                $cols = $field['columns'] ?? [];
+                $section->addText($field['label'], ['bold' => true, 'size' => 10, 'color' => '666666']);
+                $table = $section->addTable(['borderSize' => 4, 'borderColor' => 'DDDDDD', 'cellMargin' => 60]);
+                $table->addRow();
+                foreach ($cols as $c) {
+                    $table->addCell(2500)->addText((string) $c['label'], ['bold' => true, 'size' => 9]);
+                }
+                foreach ($value as $row) {
+                    $table->addRow();
+                    foreach ($cols as $c) {
+                        $table->addCell(2500)->addText((string) ($row[$c['name']] ?? ''), ['size' => 9]);
+                    }
+                }
+                $section->addTextBreak(1);
+            } elseif ($ftype === 'chart' && is_array($value) && !empty($value['rows'])) {
+                $title = trim((string) ($value['title'] ?? '')) ?: $field['label'];
+                $section->addText($title, ['bold' => true, 'size' => 10, 'color' => '666666']);
+                foreach ($value['rows'] as $r) {
+                    $section->addText('• ' . (string) ($r['label'] ?? '') . ': ' . (string) ($r['value'] ?? ''), ['size' => 10]);
+                }
+                $section->addTextBreak(1);
+            }
         }
 
         foreach ($fields as $field) {

@@ -14,11 +14,13 @@ public/uploads/blog/*
 public/uploads/logos/*
 public/uploads/signatures/*
 public/uploads/stamps/*
+public/uploads/doc-images/*
 public/uploads/products/*
 !public/uploads/blog/.gitkeep
 !public/uploads/logos/.gitkeep
 !public/uploads/signatures/.gitkeep
 !public/uploads/stamps/.gitkeep
+!public/uploads/doc-images/.gitkeep
 !public/uploads/products/.gitkeep
 
 # Sellable product files (stored outside webroot, never committed)
