@@ -5,9 +5,12 @@ use App\Controllers\Admin\BlogController as AdminBlogController;
 use App\Controllers\Admin\CategoryController;
 use App\Controllers\Admin\ContactController as AdminContactController;
 use App\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Controllers\Admin\OrderController;
 use App\Controllers\Admin\PaymentController;
 use App\Controllers\Admin\PaymentSettingController;
+use App\Controllers\Admin\ProductController;
 use App\Controllers\Admin\SeoController;
+use App\Controllers\Admin\StoreCategoryController;
 use App\Controllers\Admin\SettingController;
 use App\Controllers\Admin\SmtpController;
 use App\Controllers\Admin\SubscriptionController;
@@ -42,6 +45,25 @@ $router->group([AdminMiddleware::class], function ($router) {
     $router->get('/admin/generators/{id}/edit', [TemplateController::class, 'edit']);
     $router->post('/admin/generators/{id}', [TemplateController::class, 'update']);
     $router->post('/admin/generators/{id}/delete', [TemplateController::class, 'destroy']);
+
+    // Digital store
+    $router->get('/admin/products', [ProductController::class, 'index']);
+    $router->get('/admin/products/create', [ProductController::class, 'create']);
+    $router->post('/admin/products', [ProductController::class, 'store']);
+    $router->get('/admin/products/{id}/edit', [ProductController::class, 'edit']);
+    $router->post('/admin/products/{id}', [ProductController::class, 'update']);
+    $router->post('/admin/products/{id}/delete', [ProductController::class, 'destroy']);
+
+    $router->get('/admin/store-categories', [StoreCategoryController::class, 'index']);
+    $router->post('/admin/store-categories', [StoreCategoryController::class, 'store']);
+    $router->post('/admin/store-categories/{id}', [StoreCategoryController::class, 'update']);
+    $router->post('/admin/store-categories/{id}/delete', [StoreCategoryController::class, 'destroy']);
+
+    $router->get('/admin/orders', [OrderController::class, 'index']);
+    $router->get('/admin/orders/{id}', [OrderController::class, 'show']);
+    $router->post('/admin/orders/{id}/mark-paid', [OrderController::class, 'markPaid']);
+    $router->post('/admin/orders/{id}/refund', [OrderController::class, 'refund']);
+    $router->post('/admin/orders/{id}/delete', [OrderController::class, 'destroy']);
 
     $router->get('/admin/blog', [AdminBlogController::class, 'index']);
     $router->get('/admin/blog/create', [AdminBlogController::class, 'create']);

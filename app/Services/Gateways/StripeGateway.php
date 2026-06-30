@@ -2,9 +2,11 @@
 
 namespace App\Services\Gateways;
 
+use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Services\OrderService;
 use App\Services\PaymentGatewayInterface;
 use Stripe\BillingPortal\Session as PortalSession;
 use Stripe\Checkout\Session as CheckoutSession;
@@ -83,6 +85,83 @@ class StripeGateway implements PaymentGatewayInterface
         return $session->url;
     }
 
+    /**
+     * One-time (mode=payment) checkout for a digital-store order.
+     * Each order item becomes a Stripe line item. The order token is
+     * carried in metadata so the webhook + success page can fulfil it.
+     *
+     * @param array $order  Order row (must include id, token, customer_email, currency)
+     * @param array $items  Order item rows (product_name, price)
+     */
+    public function createProductCheckoutSession(array $order, array $items): string
+    {
+        if (!$this->isConfigured()) {
+            throw new \RuntimeException('Stripe is not configured. Add STRIPE_SECRET_KEY in .env.');
+        }
+
+        if (empty($items)) {
+            throw new \InvalidArgumentException('Cannot checkout an empty order.');
+        }
+
+        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+
+        $currency = strtolower($order['currency'] ?? 'usd');
+        $lineItems = [];
+        foreach ($items as $item) {
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => $currency,
+                    'product_data' => ['name' => $item['product_name']],
+                    'unit_amount' => (int) round(((float) $item['price']) * 100),
+                ],
+                'quantity' => 1,
+            ];
+        }
+
+        $metadata = [
+            'type' => 'store_order',
+            'order_id' => (string) $order['id'],
+            'order_token' => (string) $order['token'],
+        ];
+
+        $session = CheckoutSession::create([
+            'mode' => 'payment',
+            'customer_email' => $order['customer_email'],
+            'client_reference_id' => 'order_' . $order['id'],
+            'line_items' => $lineItems,
+            'metadata' => $metadata,
+            'payment_intent_data' => ['metadata' => $metadata],
+            'success_url' => url('store/success') . '?order=' . $order['token'] . '&session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => url('store/checkout'),
+        ]);
+
+        return $session->url;
+    }
+
+    /**
+     * Confirms a completed Checkout Session paid out, used by the
+     * success page as a fallback when the webhook hasn't landed yet.
+     * Returns [paid(bool), paymentIntentId(?string)].
+     */
+    public function confirmCheckoutSession(string $sessionId): array
+    {
+        if (!$this->isConfigured() || $sessionId === '') {
+            return [false, null];
+        }
+
+        Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+
+        try {
+            $session = CheckoutSession::retrieve($sessionId);
+        } catch (\Throwable) {
+            return [false, null];
+        }
+
+        $paid = ($session->payment_status ?? '') === 'paid';
+
+        return [$paid, $paid ? (string) ($session->payment_intent ?? $session->id) : null];
+    }
+
     public function createBillingPortalSession(array $user): string
     {
         if (!$this->isConfigured()) {
@@ -136,6 +215,11 @@ class StripeGateway implements PaymentGatewayInterface
 
     private function handleCheckoutCompleted(object $session): bool
     {
+        // Digital-store one-time orders are fulfilled separately from plan subscriptions.
+        if (($session->metadata->type ?? '') === 'store_order') {
+            return $this->handleStoreOrderCompleted($session);
+        }
+
         $userId = (int) ($session->metadata->user_id ?? $session->client_reference_id ?? 0);
 
         if (!$userId) {
@@ -179,6 +263,23 @@ class StripeGateway implements PaymentGatewayInterface
         User::applyPlan($userId, $plan, $billingCycle, $expiresAt);
 
         return true;
+    }
+
+    private function handleStoreOrderCompleted(object $session): bool
+    {
+        $orderId = (int) ($session->metadata->order_id ?? 0);
+        if (!$orderId) {
+            return false;
+        }
+
+        // Only fulfil when the payment actually cleared.
+        if (($session->payment_status ?? 'paid') !== 'paid') {
+            return true;
+        }
+
+        $paymentId = (string) ($session->payment_intent ?? $session->id);
+
+        return OrderService::markPaid($orderId, 'stripe', $paymentId);
     }
 
     private function handleSubscriptionUpdated(object $sub): bool

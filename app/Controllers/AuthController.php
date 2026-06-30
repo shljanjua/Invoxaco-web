@@ -9,6 +9,7 @@ use App\Core\Request;
 use App\Core\Session;
 use App\Core\Validator;
 use App\Models\ActivityLog;
+use App\Models\DownloadGrant;
 use App\Models\PasswordReset;
 use App\Models\User;
 use App\Services\MailService;
@@ -59,6 +60,9 @@ class AuthController extends Controller
 
         ActivityLog::log($userId, 'register', 'New account created');
 
+        // Attach any guest store purchases made with this email to the new account.
+        DownloadGrant::claimForUser($data['email'], $userId);
+
         $this->sendVerificationEmail($data['email'], $data['name'], $token);
 
         Auth::login(['id' => $userId, 'role' => 'user']);
@@ -94,6 +98,9 @@ class AuthController extends Controller
 
         $user = Auth::user();
         ActivityLog::log($user['id'], 'login', 'User logged in');
+
+        // Link any guest store purchases made with this email to the account.
+        DownloadGrant::claimForUser($user['email'], (int) $user['id']);
 
         if ($remember) {
             Auth::setRememberCookie((int) $user['id']);

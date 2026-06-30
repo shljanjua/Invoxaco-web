@@ -13,6 +13,7 @@
         <h6 class="text-white mb-3">Product</h6>
         <ul class="list-unstyled small">
           <li class="mb-2"><a class="text-secondary text-decoration-none" href="<?= url('generators') ?>">Generators</a></li>
+          <li class="mb-2"><a class="text-secondary text-decoration-none" href="<?= url('store') ?>">Digital Store</a></li>
           <li class="mb-2"><a class="text-secondary text-decoration-none" href="<?= url('features') ?>">Features</a></li>
           <li class="mb-2"><a class="text-secondary text-decoration-none" href="<?= url('pricing') ?>">Pricing</a></li>
           <li class="mb-2"><a class="text-secondary text-decoration-none" href="<?= url('templates') ?>">Templates</a></li>
