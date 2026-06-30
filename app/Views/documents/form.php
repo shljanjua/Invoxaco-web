@@ -19,11 +19,14 @@ $itemsFields = [];
 $partyFields = [];
 $signatureFields = [];
 $termsFields = [];
+$mediaFields = [];
 $basicFields = [];
 
 foreach ($fields as $field) {
     if ($field['type'] === 'line_items' || $field['type'] === 'group_list') {
         $itemsFields[] = $field;
+    } elseif (in_array($field['type'], ['image', 'gallery', 'table', 'chart'], true)) {
+        $mediaFields[] = $field;
     } elseif ($field['type'] === 'party') {
         $partyFields[] = $field;
     } elseif ($field['type'] === 'signature') {
@@ -38,9 +41,14 @@ foreach ($fields as $field) {
 $hasItemsTab = !empty($itemsFields);
 $hasPartiesTab = !empty($partyFields) || !empty($signatureFields);
 $hasTermsTab = !empty($termsFields);
+$hasMediaTab = !empty($mediaFields);
 
 $accentColor = $document['accent_color'] ?? '#2563eb';
 $templateStyle = $document['template_style'] ?? 'modern';
+$fontFamily = $document['font_family'] ?? 'sans';
+$fontScale = $document['font_scale'] ?? 'normal';
+$headingColor = $document['heading_color'] ?? '#111827';
+$bodyColor = $document['body_color'] ?? '#1f2937';
 $showLogo = $document === null || (bool) $document['show_logo'];
 $showStamp = $document !== null && (bool) $document['show_stamp'];
 
@@ -161,6 +169,79 @@ function render_field(array $field, array $documentData): void {
             <div class="form-text">The company stamp from your <a href="<?= url('settings') ?>" target="_blank">Company Settings</a> will be used on this signature.</div>
           </div>
         </div>
+      <?php elseif ($field['type'] === 'image'): ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <?php if (!empty($field['help'])): ?><div class="form-text mb-1"><?= e($field['help']) ?></div><?php endif; ?>
+        <input type="hidden" name="<?= e($name) ?>_existing" value="<?= e(is_array($value) ? '' : (string) $value) ?>">
+        <input type="file" name="<?= e($name) ?>_file" class="form-control" accept="image/png,image/jpeg,image/webp">
+        <div class="form-text">PNG, JPG or WEBP, max 2MB.</div>
+        <?php if (!is_array($value) && $value !== ''): ?>
+          <img src="<?= url('uploads/doc-images/' . e((string) $value)) ?>" class="mt-2 rounded border" style="max-height:90px;">
+        <?php endif; ?>
+      <?php elseif ($field['type'] === 'gallery'): ?>
+        <?php $gal = []; if (is_string($value) && $value !== '') { $dec = json_decode($value, true); $gal = is_array($dec) ? $dec : []; } ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <?php if (!empty($field['help'])): ?><div class="form-text mb-1"><?= e($field['help']) ?></div><?php endif; ?>
+        <input type="hidden" name="<?= e($name) ?>_existing" value="<?= e(json_encode($gal)) ?>">
+        <input type="file" name="<?= e($name) ?>_file[]" class="form-control" accept="image/png,image/jpeg,image/webp" multiple>
+        <div class="form-text">Select one or more images (PNG, JPG, WEBP). New uploads are added to any existing images (up to 12).</div>
+        <?php if (!empty($gal)): ?>
+          <div class="d-flex flex-wrap gap-2 mt-2">
+            <?php foreach ($gal as $g): ?><img src="<?= url('uploads/doc-images/' . e((string) $g)) ?>" class="rounded border" style="height:64px;"><?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+      <?php elseif ($field['type'] === 'table'): ?>
+        <?php $columns = $field['columns'] ?? []; ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <?php if (!empty($field['help'])): ?><div class="form-text mb-2"><?= e($field['help']) ?></div><?php endif; ?>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead><tr><?php foreach ($columns as $col): ?><th class="small text-secondary"><?= e($col['label']) ?></th><?php endforeach; ?><th></th></tr></thead>
+            <tbody class="repeater-rows" data-repeater="<?= e($name) ?>">
+              <?php $rows = is_array($value) && !empty($value) ? $value : [[]]; ?>
+              <?php foreach ($rows as $row): ?>
+              <tr class="repeater-row">
+                <?php foreach ($columns as $col): ?>
+                  <td><input type="text" name="<?= e($name) ?>_<?= e($col['name']) ?>[]" class="form-control form-control-sm" placeholder="<?= e($col['label']) ?>" value="<?= e($row[$col['name']] ?? '') ?>"></td>
+                <?php endforeach; ?>
+                <td><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-x"></i></button></td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-primary add-row" data-repeater-target="<?= e($name) ?>"><i class="bi bi-plus"></i> Add Row</button>
+      <?php elseif ($field['type'] === 'chart'): ?>
+        <?php
+        $chart = is_array($value) ? $value : [];
+        $ctype = $chart['type'] ?? ($field['default_type'] ?? 'bar');
+        $ctitle = $chart['title'] ?? '';
+        $crows = !empty($chart['rows']) ? $chart['rows'] : [['label' => '', 'value' => '']];
+        ?>
+        <label class="form-label fw-bold"><?= e($field['label']) ?></label>
+        <?php if (!empty($field['help'])): ?><div class="form-text mb-2"><?= e($field['help']) ?></div><?php endif; ?>
+        <div class="border rounded-3 p-2">
+          <div class="row g-2 mb-2">
+            <div class="col-md-7"><input type="text" name="<?= e($name) ?>_title" class="form-control form-control-sm" placeholder="Chart title (optional)" value="<?= e($ctitle) ?>"></div>
+            <div class="col-md-5">
+              <select name="<?= e($name) ?>_type" class="form-select form-select-sm">
+                <?php foreach (['bar' => 'Bar chart', 'line' => 'Line chart', 'pie' => 'Pie chart', 'donut' => 'Donut chart'] as $ck => $cl): ?>
+                  <option value="<?= $ck ?>" <?= $ctype === $ck ? 'selected' : '' ?>><?= $cl ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+          <div class="repeater-rows" data-repeater="<?= e($name) ?>">
+            <?php foreach ($crows as $row): ?>
+            <div class="row g-2 mb-1 repeater-row">
+              <div class="col"><input type="text" name="<?= e($name) ?>_label[]" class="form-control form-control-sm" placeholder="Label (e.g. 2024)" value="<?= e($row['label'] ?? '') ?>"></div>
+              <div class="col-4"><input type="number" step="any" name="<?= e($name) ?>_value[]" class="form-control form-control-sm" placeholder="Value" value="<?= e((string) ($row['value'] ?? '')) ?>"></div>
+              <div class="col-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-x"></i></button></div>
+            </div>
+            <?php endforeach; ?>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary mt-1 add-row" data-repeater-target="<?= e($name) ?>"><i class="bi bi-plus"></i> Add Data Point</button>
+        </div>
       <?php elseif ($field['type'] === 'textarea'): ?>
         <label class="form-label"><?= e($field['label']) ?></label>
         <textarea name="<?= e($name) ?>" class="form-control" rows="3" <?= $field['required'] ? 'required' : '' ?>><?= e(is_array($value) ? '' : (string) $value) ?></textarea>
@@ -230,6 +311,9 @@ function render_field(array $field, array $documentData): void {
           <?php if ($hasItemsTab): ?>
           <li class="nav-item"><button type="button" class="nav-link" data-tab="items">Items</button></li>
           <?php endif; ?>
+          <?php if ($hasMediaTab): ?>
+          <li class="nav-item"><button type="button" class="nav-link" data-tab="media">Media &amp; Charts</button></li>
+          <?php endif; ?>
           <?php if ($hasPartiesTab): ?>
           <li class="nav-item"><button type="button" class="nav-link" data-tab="parties">Parties &amp; Signatures</button></li>
           <?php endif; ?>
@@ -247,6 +331,13 @@ function render_field(array $field, array $documentData): void {
         <?php if ($hasItemsTab): ?>
         <div class="tab-pane d-none" data-pane="items">
           <?php foreach ($itemsFields as $field): render_field($field, $documentData); endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php if ($hasMediaTab): ?>
+        <div class="tab-pane d-none" data-pane="media">
+          <p class="text-secondary small">Add images, photos, data charts and tables. Charts are drawn from the values you enter and render in both the preview and the downloaded PDF.</p>
+          <?php foreach ($mediaFields as $field): render_field($field, $documentData); endforeach; ?>
         </div>
         <?php endif; ?>
 
@@ -283,6 +374,35 @@ function render_field(array $field, array $documentData): void {
                 <option value="freelancer" <?= $templateStyle === 'freelancer' ? 'selected' : '' ?>>Freelancer</option>
                 <option value="consulting" <?= $templateStyle === 'consulting' ? 'selected' : '' ?>>Consulting</option>
               </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Font Family</label>
+              <select name="font_family" class="form-select">
+                <option value="sans" <?= $fontFamily === 'sans' ? 'selected' : '' ?>>Sans-serif (Helvetica / Arial)</option>
+                <option value="serif" <?= $fontFamily === 'serif' ? 'selected' : '' ?>>Serif (Times)</option>
+                <option value="modern" <?= $fontFamily === 'modern' ? 'selected' : '' ?>>Modern (DejaVu Sans)</option>
+                <option value="classic" <?= $fontFamily === 'classic' ? 'selected' : '' ?>>Classic (Georgia / Serif)</option>
+                <option value="mono" <?= $fontFamily === 'mono' ? 'selected' : '' ?>>Monospace (Courier)</option>
+              </select>
+              <div class="form-text">Applied to the whole document.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Text Size</label>
+              <select name="font_scale" class="form-select">
+                <option value="compact" <?= $fontScale === 'compact' ? 'selected' : '' ?>>Compact</option>
+                <option value="normal" <?= $fontScale === 'normal' ? 'selected' : '' ?>>Normal</option>
+                <option value="large" <?= $fontScale === 'large' ? 'selected' : '' ?>>Large</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Heading Colour</label>
+              <input type="color" name="heading_color" class="form-control form-control-color w-100" value="<?= e($headingColor) ?>">
+              <div class="form-text">Section titles and headings.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Body Text Colour</label>
+              <input type="color" name="body_color" class="form-control form-control-color w-100" value="<?= e($bodyColor) ?>">
+              <div class="form-text">Main paragraph text.</div>
             </div>
             <div class="col-md-4">
               <label class="form-label d-block">Logo &amp; Stamp</label>
@@ -458,7 +578,14 @@ document.getElementById('documentForm').addEventListener('input', function () {
 });
 function autosave() {
   const form = document.getElementById('documentForm');
-  const data = new FormData(form);
+  // Build payload excluding file inputs so images aren't re-uploaded on every
+  // keystroke (existing image paths are preserved via the hidden _existing fields).
+  const data = new FormData();
+  form.querySelectorAll('input, select, textarea').forEach(function (el) {
+    if (!el.name || el.type === 'file') return;
+    if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) return;
+    data.append(el.name, el.value);
+  });
   fetch('<?= url('documents/' . $document['id'] . '/autosave') ?>', {
     method: 'POST',
     body: data,

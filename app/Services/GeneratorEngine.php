@@ -121,6 +121,23 @@ class GeneratorEngine
                 continue;
             }
 
+            if ($type === 'table') {
+                $data[$name] = self::collectGroupList($name, $field['columns'] ?? []);
+                continue;
+            }
+
+            if ($type === 'chart') {
+                $data[$name] = self::collectChart($name);
+                continue;
+            }
+
+            if ($type === 'image' || $type === 'gallery') {
+                // Stored file path(s) are injected by the controller after the
+                // upload is processed; preserve any existing value on edit.
+                $data[$name] = trim((string) ($_POST[$name . '_existing'] ?? ''));
+                continue;
+            }
+
             if ($type === 'party') {
                 $data[$name] = self::collectParty($name);
                 continue;
@@ -220,6 +237,28 @@ class GeneratorEngine
         }
 
         return $rows;
+    }
+
+    private static function collectChart(string $name): array
+    {
+        $labels = $_POST[$name . '_label'] ?? [];
+        $values = $_POST[$name . '_value'] ?? [];
+        $rows = [];
+        $count = max(count((array) $labels), count((array) $values));
+        for ($i = 0; $i < $count; $i++) {
+            $label = trim((string) ($labels[$i] ?? ''));
+            $rawVal = trim((string) ($values[$i] ?? ''));
+            if ($label === '' && $rawVal === '') {
+                continue;
+            }
+            $rows[] = ['label' => $label, 'value' => (float) $rawVal];
+        }
+
+        return [
+            'type' => (string) ($_POST[$name . '_type'] ?? 'bar'),
+            'title' => trim((string) ($_POST[$name . '_title'] ?? '')),
+            'rows' => $rows,
+        ];
     }
 
     private static function collectParty(string $name): array

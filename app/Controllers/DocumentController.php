@@ -75,6 +75,7 @@ class DocumentController extends Controller
 
         $fields = DocumentTemplate::decodeFields($template);
         $data = GeneratorEngine::collectFromRequest($fields);
+        $data = $this->processImageUploads($fields, $data);
 
         $documentId = Document::create([
             'user_id' => $user['id'],
@@ -89,7 +90,7 @@ class DocumentController extends Controller
             'template_style' => $this->collectTemplateStyle(),
             'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
             'show_stamp' => Request::input('show_stamp') !== null ? 1 : 0,
-        ]);
+        ] + $this->designFields());
 
         $this->flashAndRedirect('success', 'Document saved.', url('documents/' . $documentId . '/edit'));
     }
@@ -130,6 +131,7 @@ class DocumentController extends Controller
         $template = DocumentTemplate::find((int) $document['template_id']);
         $fields = DocumentTemplate::decodeFields($template);
         $data = GeneratorEngine::collectFromRequest($fields);
+        $data = $this->processImageUploads($fields, $data);
 
         Document::update($id, [
             'client_id' => Request::input('client_id') ?: null,
@@ -140,7 +142,7 @@ class DocumentController extends Controller
             'template_style' => $this->collectTemplateStyle(),
             'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
             'show_stamp' => Request::input('show_stamp') !== null ? 1 : 0,
-        ]);
+        ] + $this->designFields());
 
         $this->flashAndRedirect('success', 'Document updated.', url('documents/' . $id . '/edit'));
     }
@@ -157,6 +159,7 @@ class DocumentController extends Controller
         $template = DocumentTemplate::find((int) $document['template_id']);
         $fields = DocumentTemplate::decodeFields($template);
         $data = GeneratorEngine::collectFromRequest($fields);
+        $data = $this->processImageUploads($fields, $data);
 
         Document::update($id, [
             'data' => json_encode($data),
@@ -165,7 +168,7 @@ class DocumentController extends Controller
             'template_style' => $this->collectTemplateStyle(),
             'show_logo' => Request::input('show_logo') !== null ? 1 : 0,
             'show_stamp' => Request::input('show_stamp') !== null ? 1 : 0,
-        ]);
+        ] + $this->designFields());
 
         $this->json(['ok' => true, 'saved_at' => date('H:i:s')]);
     }
@@ -401,6 +404,102 @@ class DocumentController extends Controller
         $color = Request::string('accent_color');
 
         return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : '#2563eb';
+    }
+
+    private function hexOr(string $key, string $default): string
+    {
+        $color = Request::string($key);
+
+        return preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : $default;
+    }
+
+    private function collectFontFamily(): string
+    {
+        $allowed = ['sans', 'serif', 'modern', 'mono', 'classic'];
+        $f = Request::string('font_family');
+
+        return in_array($f, $allowed, true) ? $f : 'sans';
+    }
+
+    private function collectFontScale(): string
+    {
+        $s = Request::string('font_scale');
+
+        return in_array($s, ['compact', 'normal', 'large'], true) ? $s : 'normal';
+    }
+
+    /**
+     * Processes uploaded images for `image`/`gallery` fields and writes the
+     * stored file path(s) into $data. Keeps existing files on edit when no new
+     * file is uploaded. Returns the updated $data.
+     */
+    private function processImageUploads(array $fields, array $data): array
+    {
+        foreach ($fields as $field) {
+            $type = $field['type'] ?? '';
+            $name = $field['name'] ?? '';
+            if ($name === '' || ($type !== 'image' && $type !== 'gallery')) {
+                continue;
+            }
+
+            if ($type === 'image') {
+                $file = Request::file($name . '_file');
+                if ($file && ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                    try {
+                        $stored = \App\Services\FileUploader::storeImage($file, 'doc-images');
+                        if ($stored) {
+                            $data[$name] = $stored;
+                        }
+                    } catch (\RuntimeException) {
+                        // keep existing value on invalid upload
+                    }
+                }
+                continue;
+            }
+
+            // gallery: a list of stored filenames (JSON), append any new uploads
+            $existing = [];
+            $raw = $data[$name] ?? '';
+            if (is_string($raw) && $raw !== '') {
+                $decoded = json_decode($raw, true);
+                $existing = is_array($decoded) ? $decoded : [];
+            }
+            $files = $_FILES[$name . '_file'] ?? null;
+            if (is_array($files) && isset($files['error']) && is_array($files['error'])) {
+                foreach ($files['error'] as $i => $err) {
+                    if ($err !== UPLOAD_ERR_OK) {
+                        continue;
+                    }
+                    $one = [
+                        'name' => $files['name'][$i] ?? '',
+                        'type' => $files['type'][$i] ?? '',
+                        'tmp_name' => $files['tmp_name'][$i] ?? '',
+                        'error' => $err,
+                        'size' => $files['size'][$i] ?? 0,
+                    ];
+                    try {
+                        $stored = \App\Services\FileUploader::storeImage($one, 'doc-images');
+                        if ($stored) {
+                            $existing[] = $stored;
+                        }
+                    } catch (\RuntimeException) {
+                    }
+                }
+            }
+            $data[$name] = json_encode(array_values(array_slice($existing, 0, 12)));
+        }
+
+        return $data;
+    }
+
+    private function designFields(): array
+    {
+        return [
+            'font_family' => $this->collectFontFamily(),
+            'font_scale' => $this->collectFontScale(),
+            'heading_color' => $this->hexOr('heading_color', '#111827'),
+            'body_color' => $this->hexOr('body_color', '#1f2937'),
+        ];
     }
 
     private function collectTemplateStyle(): string
